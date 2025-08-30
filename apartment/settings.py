@@ -4,7 +4,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-test-key'
 DEBUG = True
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.100.11']
+ALLOWED_HOSTS = ['my-apartment-app-123.onrender.com', '127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
