@@ -4,8 +4,9 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-6_iezrvrparvw$epkyvl**trt2l0*$y!dt2&u+9$#gm0u0t5h&')
-DEBUG = True  # Changed to True for debugging
+DEBUG = True  # Set to False for production later
 ALLOWED_HOSTS = ['apartment-p51r.onrender.com', '127.0.0.1', 'localhost']
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -15,6 +16,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
 ]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -24,6 +26,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 ROOT_URLCONF = 'apartment.urls'
 TEMPLATES = [
     {
@@ -39,7 +42,9 @@ TEMPLATES = [
         },
     },
 ]
+
 WSGI_APPLICATION = 'apartment.wsgi.application'
+
 if os.environ.get('DJANGO_LOCAL_DEV', False):
     DATABASES = {
         'default': {
@@ -51,11 +56,13 @@ else:
     DATABASES = {
         'default': dj_database_url.config(conn_max_age=600, ssl_require=True, default='sqlite:///db.sqlite3')
     }
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'accounts', 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 SECURE_SSL_REDIRECT = not os.environ.get('DJANGO_LOCAL_DEV', False)
 SESSION_COOKIE_SECURE = not os.environ.get('DJANGO_LOCAL_DEV', False)
 CSRF_COOKIE_SECURE = not os.environ.get('DJANGO_LOCAL_DEV', False)
