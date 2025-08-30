@@ -1,0 +1,14 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<h2>Rent Reminders (Due in 7 Days)</h2>
+<table>
+    <tr><th>Unit</th><th>Month</th><th>Total Due</th></tr>
+    {% for bill in overdue_bills %}
+    <tr>
+        <td>{{ bill.unit }}</td>
+        <td>{{ bill.month }}</td>
+        <td>{{ bill.total_rent }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

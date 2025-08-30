@@ -1,0 +1,20 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<h2>Apartments</h2>
+<a href="{% url 'apartment_create' %}">Add Apartment</a>
+<table>
+    <tr><th>Name</th><th>Address</th><th>Units</th><th>Tenants</th><th>Actions</th></tr>
+    {% for apt in apartments %}
+    <tr>
+        <td>{{ apt.name }}</td>
+        <td>{{ apt.address }}</td>
+        <td>{{ apt.number_of_units }}</td>
+        <td>{{ apt.number_of_current_tenants }}</td>
+        <td>
+            <a href="{% url 'apartment_update' apt.pk %}">Edit</a> |
+            <a href="{% url 'apartment_delete' apt.pk %}">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
