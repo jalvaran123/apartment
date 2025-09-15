@@ -5,7 +5,7 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-6_iezrvrparvw$epkyvl**trt2l0*$y!dt2&u+9$#gm0u0t5h&')
 DEBUG = os.environ.get('DJANGO_LOCAL_DEV', 'False').lower() == 'true'
-ALLOWED_HOSTS = ['monterde-apartment.onrender.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['monterde-apartment.onrender.com', 'apartment-p51r.onrender.com', '127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
