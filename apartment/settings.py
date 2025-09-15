@@ -4,8 +4,8 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-6_iezrvrparvw$epkyvl**trt2l0*$y!dt2&u+9$#gm0u0t5h&')
-DEBUG = False  # Set to False for production
-ALLOWED_HOSTS = ['apartment-p51r.onrender.com', '127.0.0.1', 'localhost']
+DEBUG = os.environ.get('DJANGO_LOCAL_DEV', 'False').lower() == 'true'
+ALLOWED_HOSTS = ['monterde-apartment.onrender.com', '127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -19,7 +19,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add WhiteNoise for static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -47,29 +47,34 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'apartment.wsgi.application'
 
-if os.environ.get('DJANGO_LOCAL_DEV', False):
+if os.environ.get('DJANGO_LOCAL_DEV', 'False').lower() == 'true':
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'apartment_db',
+            'USER': 'postgres',
+            'PASSWORD': 'MyNewPass123',  # Updated password
+            'HOST': 'localhost',
+            'PORT': '5432',
         }
     }
 else:
     DATABASES = {
         'default': dj_database_url.config(
-            default='sqlite:///db.sqlite3',
+            default='postgres://your_username:your_password@localhost:5432/apartment_db',
             conn_max_age=600,
-            ssl_require=True
+            ssl_require=False
         )
     }
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'accounts', 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # For Render
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-SECURE_SSL_REDIRECT = not os.environ.get('DJANGO_LOCAL_DEV', False)
-SESSION_COOKIE_SECURE = not os.environ.get('DJANGO_LOCAL_DEV', False)
-CSRF_COOKIE_SECURE = not os.environ.get('DJANGO_LOCAL_DEV', False)
+SECURE_SSL_REDIRECT = not os.environ.get('DJANGO_LOCAL_DEV', 'False').lower() == 'true'
+SESSION_COOKIE_SECURE = not os.environ.get('DJANGO_LOCAL_DEV', 'False').lower() == 'true'
+CSRF_COOKIE_SECURE = not os.environ.get('DJANGO_LOCAL_DEV', 'False').lower() == 'true'
