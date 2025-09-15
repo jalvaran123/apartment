@@ -5,7 +5,7 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-6_iezrvrparvw$epkyvl**trt2l0*$y!dt2&u+9$#gm0u0t5h&')
 DEBUG = os.environ.get('DJANGO_LOCAL_DEV', 'False').lower() == 'true'
-ALLOWED_HOSTS = ['monterde-apartment.onrender.com', 'apartment-p51r.onrender.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['apartment-p51r.onrender.com', '127.0.0.1', 'localhost']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -52,8 +52,8 @@ if os.environ.get('DJANGO_LOCAL_DEV', 'False').lower() == 'true':
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': 'apartment_db',
-            'USER': 'postgres',
-            'PASSWORD': 'MyNewPass123',  # Updated password
+            'USER': 'postgres',  # Replace with your PostgreSQL username
+            'PASSWORD': 'MyNewPass123',      # Replace with your PostgreSQL password
             'HOST': 'localhost',
             'PORT': '5432',
         }
@@ -61,7 +61,6 @@ if os.environ.get('DJANGO_LOCAL_DEV', 'False').lower() == 'true':
 else:
     DATABASES = {
         'default': dj_database_url.config(
-            default='postgres://your_username:your_password@localhost:5432/apartment_db',
             conn_max_age=600,
             ssl_require=False
         )
