@@ -1,0 +1,96 @@
+/* General body styling with dark theme */
+body {
+    background-color: #1e1e1e; /* Dark background */
+    color: white; /* White text for contrast */
+    font-family: Arial, sans-serif; /* Consistent font */
+    margin: 0;
+    padding: 0;
+}
+
+/* Table styling for lists (e.g., tenant_list, unit_list) */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 10px;
+}
+
+th, td {
+    border: 1px solid #333; /* Darker border for visibility */
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #2c2c2c; /* Slightly lighter header background */
+    color: #ddd; /* Lighter text for headers */
+}
+
+/* Form input and select elements */
+input, select {
+    background-color: #333; /* Dark input background */
+    color: white; /* White text */
+    border: none; /* Remove default border */
+    padding: 5px;
+    margin: 5px 0;
+    border-radius: 3px; /* Slight rounding */
+}
+
+input:focus, select:focus {
+    outline: none; /* Remove focus outline */
+    box-shadow: 0 0 5px #0d6efd; /* Blue glow on focus */
+}
+
+/* Button styling */
+button {
+    background-color: #0d6efd; /* Blue button background */
+    color: white; /* White text */
+    border: none;
+    padding: 8px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin: 5px 0;
+}
+
+button:hover {
+    background-color: #0b5ed7; /* Darker blue on hover */
+}
+
+/* Specific button styles (e.g., from screenshots like Pay Rent, Demolish) */
+button.pay-rent {
+    background-color: #28a745; /* Green for Pay Rent */
+}
+
+button.pay-rent:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+button.demolish {
+    background-color: #dc3545; /* Red for Demolish */
+}
+
+button.demolish:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
+
+/* Navigation styling (e.g., sidebar links) */
+nav a {
+    color: #0d6efd; /* Blue links */
+    text-decoration: none;
+    margin-right: 10px;
+}
+
+nav a:hover {
+    color: #0b5ed7; /* Darker blue on hover */
+}
+
+/* Form labels */
+label {
+    display: block;
+    margin-top: 10px;
+}
+
+/* Readonly inputs (e.g., for calculated fields) */
+input[readonly] {
+    background-color: #444; /* Slightly lighter for readability */
+    cursor: not-allowed;
+}

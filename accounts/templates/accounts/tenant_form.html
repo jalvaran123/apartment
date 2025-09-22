@@ -1,0 +1,19 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<h2>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Tenant</h2>
+<form method="POST">
+    {% csrf_token %}
+    <label>First Name:</label> {{ form.first_name }}<br>
+    <label>Middle Name (Optional):</label> {{ form.middle_name }}<br>
+    <label>Last Name:</label> {{ form.last_name }}<br>
+    <label>Contact Number:</label> {{ form.contact_number }}<br>
+    <label>Date of Birth:</label> {{ form.date_of_birth }}<br>
+    <label>Sex:</label> {{ form.sex }}<br>
+    <label>Street:</label> {{ form.original_address }}<br>  <!-- Adjust as needed -->
+    <label>Barangay:</label> <input type="text"><br>  <!-- Extend form if needed -->
+    <label>City:</label> <input type="text"><br>
+    <label>Region:</label> <input type="text"><br>
+    <label>Room ID:</label> {{ form.unit }}<br>
+    <button type="submit">Submit</button>
+</form>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<h2>Rent Payment</h2>
+<form method="POST">
+    {% csrf_token %}
+    <label>Person ID:</label> {{ form.tenant }}<br>
+    <label>Name:</label> <input type="text" readonly><br>
+    <label>Room ID:</label> {{ form.unit }}<br>
+    <label>Rent Status:</label> <input type="text" readonly><br>
+    <label>Total Rent Amount:</label> <input type="text" readonly><br>
+    <label>Payment Amount:</label> {{ form.amount }}<br>
+    <label>Remarks:</label> {{ form.remarks }}<br>
+    <label>Change:</label> <input type="text" readonly><br>
+    <button type="submit">Pay Rent</button>
+</form>
+{% endblock %}

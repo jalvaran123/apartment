@@ -1,0 +1,15 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<h2>Visitors</h2>
+<a href="{% url 'visitor_create' %}">Log Visitor</a>
+<table>
+    <tr><th>Name</th><th>Date</th><th>Unit</th></tr>
+    {% for visitor in visitors %}
+    <tr>
+        <td>{{ visitor.name }}</td>
+        <td>{{ visitor.date_of_visit }}</td>
+        <td>{{ visitor.unit }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

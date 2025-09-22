@@ -1,0 +1,22 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<h2>Manage Rooms</h2>
+<a href="{% url 'unit_create' %}">Add Room</a>
+<table>
+    <tr><th>Room ID</th><th>Floor</th><th>Tenants</th><th>Max Renters</th><th>Price</th><th>Status</th><th>Actions</th></tr>
+    {% for unit in units %}
+    <tr>
+        <td>{{ unit.unit_id }}</td>
+        <td>{{ unit.floor }}</td>
+        <td>{{ unit.number_of_tenants }}</td>
+        <td>{{ unit.max_tenants }}</td>
+        <td>{{ unit.price }}</td>
+        <td>{{ unit.status }}</td>
+        <td>
+            <a href="{% url 'unit_update' unit.pk %}">Edit</a> |
+            <a href="{% url 'unit_delete' unit.pk %}">Demolish</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

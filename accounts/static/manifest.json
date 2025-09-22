@@ -1,0 +1,20 @@
+{
+  "name": "Apartment Management",
+  "short_name": "Apartment App",
+  "start_url": "/accounts/login/",
+  "display": "standalone",
+  "background_color": "#1c2526",
+  "theme_color": "#00b7eb",
+  "icons": [
+    {
+      "src": "/static/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<h2>Payment Details</h2>
+<a href="{% url 'payment_create' %}">Make Payment</a>
+<a href="{% url 'payment_method_create' %}">Add Method</a>
+<table>
+    <tr><th>Person ID</th><th>Name</th><th>Room ID</th><th>Rent Status</th></tr>
+    {% for payment in payments %}
+    <tr>
+        <td>{{ payment.tenant.tenant_id }}</td>
+        <td>{{ payment.tenant }}</td>
+        <td>{{ payment.unit.unit_id }}</td>
+        <td>{{ payment.rent_status }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

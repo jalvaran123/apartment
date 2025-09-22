@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Apartment App</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Apartment Management</h1>
+        <nav>
+            <a href="{% url 'index' %}">Home</a> |
+            <a href="{% url 'login' %}">Login</a> |
+            <a href="{% url 'home' %}">Dashboard</a>
+        </nav>
+    </header>
+    <hr>
+    {% block content %}{% endblock %}
+</body>
+</html>
