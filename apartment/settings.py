@@ -51,7 +51,7 @@ INSTALLED_APPS = [
 # -------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # must be just after SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -71,7 +71,7 @@ ROOT_URLCONF = 'apartment.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates'],  # your global templates directory
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -96,7 +96,7 @@ DATABASES = {
     'default': dj_database_url.config(
         default="postgresql://postgres.tvttwbifawwudymwnjpg:Cookie12345@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres",
         conn_max_age=600,
-        ssl_require=not DEBUG  # only require SSL in production
+        ssl_require=not DEBUG  # require SSL only in production
     )
 }
 
@@ -104,18 +104,10 @@ DATABASES = {
 # Password Validators
 # -------------------------------
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 # -------------------------------
@@ -130,8 +122,10 @@ USE_TZ = True
 # Static & Media Files
 # -------------------------------
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'static']  # keep your local static folder
+STATIC_ROOT = BASE_DIR / 'staticfiles'   # where collectstatic will put all static assets
+
+# ✅ WhiteNoise storage backend for caching & compression
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
@@ -144,7 +138,7 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
 # -------------------------------
-# Security
+# Security Settings
 # -------------------------------
 if DEBUG:
     SECURE_SSL_REDIRECT = False
@@ -155,7 +149,10 @@ else:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
+    CSRF_TRUSTED_ORIGINS = [
+        'https://apartment-p51r.onrender.com',
+        'https://*.onrender.com'
+    ]
 
 # -------------------------------
 # Default Primary Key Field Type
