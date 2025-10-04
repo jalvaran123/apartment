@@ -1,0 +1,23 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<h2 class="page-title">Dashboard</h2>
+<p class="page-subtitle">Welcome to the Apartment Management System.</p>
+
+<div class="card-grid">
+    <a href="{% url 'tenants' %}" class="card">
+        <h3>👥</h3>
+        <h3>Tenants</h3>
+        <p>Manage tenant records and information</p>
+    </a>
+    <a href="{% url 'unit_list' %}" class="card">
+        <h3>🏠</h3>
+        <h3>Units</h3>
+        <p>View and manage apartment units</p>
+    </a>
+    <a href="{% url 'rent' %}" class="card">
+        <h3>💳</h3>
+        <h3>Rent</h3>
+        <p>Track rental payments and billing</p>
+    </a>
+</div>
+{% endblock %}

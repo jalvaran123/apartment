@@ -1,0 +1,49 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div class="page-container">
+    <h2 class="page-title">Manage Rooms</h2>
+    <p class="page-subtitle">View and manage all room units.</p>
+    
+    <a href="{% url 'unit_create' %}" class="btn" style="margin-bottom: 20px;">
+        <span style="margin-right: 8px;">➕</span> Add Room
+    </a>
+
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Room ID</th>
+                <th>Floor</th>
+                <th>Tenants</th>
+                <th>Max Renters</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for unit in units %}
+            <tr>
+                <td><strong>{{ unit.unit_id }}</strong></td>
+                <td>{{ unit.floor }}</td>
+                <td>{{ unit.number_of_tenants }}</td>
+                <td>{{ unit.max_tenants }}</td>
+                <td>₱{{ unit.price }}</td>
+                <td>
+                    {% if unit.status == 'Occupied' %}
+                        <span class="status-badge">{{ unit.status }}</span>
+                    {% else %}
+                        <span class="status-badge unpaid">{{ unit.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'unit_update' unit.pk %}" class="btn-small">Edit</a>
+                    <a href="{% url 'unit_delete' unit.pk %}" class="btn-small btn-danger">Demolish</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align: center; color: #8a8a9e;">No rooms available.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

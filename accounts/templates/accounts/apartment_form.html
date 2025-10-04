@@ -1,0 +1,19 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div class="page-container">
+    <h2 class="page-title">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Apartment</h2>
+    <p class="page-subtitle">Enter apartment property details.</p>
+
+    <form method="POST" class="modern-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <div class="form-actions">
+            <button type="submit" class="btn">
+                <span style="margin-right: 8px;">💾</span> Save
+            </button>
+            <a href="{% url 'apartment_list' %}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

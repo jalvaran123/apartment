@@ -1,0 +1,17 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div class="page-container">
+    <h2 class="page-title">{% if form.instance.pk %}Edit{% else %}Create{% endif %} Bill</h2>
+    <p class="page-subtitle">Fill in the bill details below.</p>
+
+    <form method="post" class="modern-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <div class="form-actions">
+            <button type="submit" class="btn">💾 Save</button>
+            <a href="{% url 'bill_list' %}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div class="page-container">
+    <h2 class="page-title">Payment Details</h2>
+    <p class="page-subtitle">Track all payment transactions.</p>
+    
+    <div style="margin-bottom: 20px; display: flex; gap: 15px;">
+        <a href="{% url 'payment_create' %}" class="btn">
+            <span style="margin-right: 8px;">💳</span> Make Payment
+        </a>
+        <a href="{% url 'payment_method_create' %}" class="btn-small">
+            <span style="margin-right: 8px;">➕</span> Add Method
+        </a>
+    </div>
+
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Person ID</th>
+                <th>Name</th>
+                <th>Room ID</th>
+                <th>Rent Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.tenant.tenant_id }}</td>
+                <td><strong>{{ payment.tenant }}</strong></td>
+                <td>{{ payment.unit.unit_id }}</td>
+                <td>
+                    {% if payment.rent_status == 'Paid' %}
+                        <span class="status-badge">{{ payment.rent_status }}</span>
+                    {% else %}
+                        <span class="status-badge unpaid">{{ payment.rent_status }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align: center; color: #8a8a9e;">No payment records available.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

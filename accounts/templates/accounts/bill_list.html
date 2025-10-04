@@ -1,0 +1,32 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div class="page-container">
+    <h2 class="page-title">Bills</h2>
+    <p class="page-subtitle">Monthly billing records for all units.</p>
+    
+    <a href="{% url 'bill_create' %}" class="btn" style="margin-bottom: 20px;">
+        <span style="margin-right: 8px;">➕</span> Create Bill
+    </a>
+
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Unit</th>
+                <th>Month</th>
+                <th>Total Rent</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bill in bills %}
+            <tr>
+                <td><strong>{{ bill.unit }}</strong></td>
+                <td>{{ bill.month }}</td>
+                <td>₱{{ bill.total_rent }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" style="text-align: center; color: #8a8a9e;">No bills available.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

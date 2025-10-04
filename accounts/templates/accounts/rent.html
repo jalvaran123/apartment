@@ -1,0 +1,49 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div id="rent" class="page active">
+    <div class="page-container">
+        <h2 class="page-title">Rent</h2>
+        <p class="page-subtitle">Here are the rent records (sample only for now).</p>
+
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Unit</th>
+                    <th>Date Charged</th>
+                    <th>Date Covered</th>
+                    <th>Water Bill</th>
+                    <th>Meter Total</th>
+                    <th>Balance</th>
+                    <th>Paid</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Unit 1</td>
+                    <td>2024-08-01</td>
+                    <td>2024-08-31</td>
+                    <td>₱450.00</td>
+                    <td>29.80</td>
+                    <td>₱8,950.00</td>
+                    <td><span class="status-badge unpaid">No</span></td>
+                </tr>
+                <tr>
+                    <td>Unit 2</td>
+                    <td>2024-08-01</td>
+                    <td>2024-08-31</td>
+                    <td>₱380.00</td>
+                    <td>25.50</td>
+                    <td>₱9,380.00</td>
+                    <td><span class="status-badge">Yes</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="page-selector">
+    <button onclick="window.location.href='{% url 'dashboard' %}'">Dashboard</button>
+    <button onclick="window.location.href='{% url 'unit_list' %}'">Units</button>
+    <button class="active" onclick="window.location.href='{% url 'rent' %}'">Rent</button>
+</div>
+{% endblock %}

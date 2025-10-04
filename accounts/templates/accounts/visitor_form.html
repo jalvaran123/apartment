@@ -1,0 +1,19 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div class="page-container">
+    <h2 class="page-title">Log Visitor</h2>
+    <p class="page-subtitle">Record visitor information and entry details.</p>
+
+    <form method="POST" class="modern-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <div class="form-actions">
+            <button type="submit" class="btn">
+                <span style="margin-right: 8px;">💾</span> Save
+            </button>
+            <a href="{% url 'visitor_list' %}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

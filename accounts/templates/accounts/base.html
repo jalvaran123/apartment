@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Apartment App</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Apartment Management</h1>
+        <nav>
+            <a href="{% url 'dashboard' %}">Dashboard</a> |
+            <a href="{% url 'apartment_list' %}">Apartments</a> |
+            <a href="{% url 'unit_list' %}">Units</a> |
+            <a href="{% url 'tenants' %}">Tenants</a> |
+            <a href="{% url 'payment_list' %}">Payments</a> |
+            <a href="{% url 'bill_list' %}">Bills</a> |
+            <a href="{% url 'visitor_list' %}">Visitors</a> |
+            <a href="{% url 'rent_reminders' %}">Rent Reminders</a> |
+            <a href="{% url 'logout' %}">Logout</a>
+        </nav>
+    </header>
+    <hr>
+    {% block content %}{% endblock %}
+</body>
+</html>

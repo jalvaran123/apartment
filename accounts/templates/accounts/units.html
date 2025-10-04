@@ -1,0 +1,49 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div id="units" class="page active">
+    <div class="page-container">
+        <h2 class="page-title">Units</h2>
+        <p class="page-subtitle">Here is the list of units.</p>
+
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Unit ID</th>
+                    <th>Apartment</th>
+                    <th>Floor</th>
+                    <th>Tenants</th>
+                    <th>Max Tenants</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Monterde Heights</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>₱8,500.00</td>
+                    <td><span class="status-badge">Occupied</span></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Monterde Heights</td>
+                    <td>2</td>
+                    <td>0</td>
+                    <td>2</td>
+                    <td>₱9,000.00</td>
+                    <td><span class="status-badge unpaid">Vacant</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="page-selector">
+    <button onclick="window.location.href='{% url 'dashboard' %}'">Dashboard</button>
+    <button class="active" onclick="window.location.href='{% url 'unit_list' %}'">Units</button>
+    <button onclick="window.location.href='{% url 'rent' %}'">Rent</button>
+</div>
+{% endblock %}

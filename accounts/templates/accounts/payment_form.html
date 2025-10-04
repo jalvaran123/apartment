@@ -1,0 +1,60 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div class="page-container">
+    <h2 class="page-title">Rent Payment</h2>
+    <p class="page-subtitle">Process tenant rent payment.</p>
+
+    <form method="POST" class="modern-form">
+        {% csrf_token %}
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Person ID</label>
+                {{ form.tenant }}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Name</label>
+                <input type="text" readonly class="form-input readonly-input">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Room ID</label>
+                {{ form.unit }}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Rent Status</label>
+                <input type="text" readonly class="form-input readonly-input">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Total Rent Amount</label>
+                <input type="text" readonly class="form-input readonly-input">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Payment Amount</label>
+                {{ form.amount }}
+            </div>
+            
+            <div class="form-group full-width">
+                <label class="form-label">Remarks</label>
+                {{ form.remarks }}
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Change</label>
+                <input type="text" readonly class="form-input readonly-input">
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn">
+                <span style="margin-right: 8px;">💳</span> Pay Rent
+            </button>
+            <a href="{% url 'payment_list' %}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

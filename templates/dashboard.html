@@ -1,0 +1,24 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard — Monterde Apartment</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="{% static 'sia/styles.css' %}">
+</head>
+<body>
+  <div class="sidebar">
+    <h3>Menu</h3>
+    <ul>
+      <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+      <li><a href="{% url 'logout' %}">Logout</a></li>
+    </ul>
+  </div>
+  <div class="main-content">
+    <h1>Welcome, {{ request.user.username }}</h1>
+    <p>Here are your apartment updates.</p>
+    <img src="{% static 'sia/Apt1.jpg' %}" alt="Apt1" style="max-width:600px;width:100%">
+  </div>
+</body>
+</html>
