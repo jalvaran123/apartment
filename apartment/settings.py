@@ -22,7 +22,8 @@ _local_dev_env = os.environ.get('DJANGO_LOCAL_DEV')
 if _local_dev_env is not None:
     DEBUG = _local_dev_env.lower() == 'true'
 else:
-    DEBUG = not bool(os.environ.get('RENDER'))  # Render sets RENDER=True automatically
+    # Render sets RENDER=True automatically
+    DEBUG = not bool(os.environ.get('RENDER'))
 
 # -------------------------------
 # Allowed Hosts
@@ -51,7 +52,8 @@ INSTALLED_APPS = [
 # -------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # must be just after SecurityMiddleware
+    # must be just after SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -123,7 +125,8 @@ USE_TZ = True
 # -------------------------------
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']  # keep your local static folder
-STATIC_ROOT = BASE_DIR / 'staticfiles'   # where collectstatic will put all static assets
+# where collectstatic will put all static assets
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # ✅ WhiteNoise storage backend for caching & compression
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

@@ -2,7 +2,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from accounts import views
-from django.contrib.auth import views as auth_views  # <-- import built-in auth views
+# <-- import built-in auth views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -17,5 +18,5 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
 
     # ✅ Logout route (so {% url 'logout' %} works)
-    path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    path('logout/', views.logout_view, name='logout'),
 ]

@@ -1,0 +1,97 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div class="page-container">
+    <h2 class="page-title">Other Charges</h2>
+    <p class="page-subtitle">Manage additional fees related to rent (parking, maintenance, etc.).</p>
+
+    <a href="{% url 'other_charges_create' %}" class="btn" style="margin-bottom: 20px;">
+        <span style="margin-right: 8px;">➕</span> Add Other Charge
+    </a>
+
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>Charge Name</th>
+                <th>Description</th>
+                <th>Total (₱)</th>
+                <th>Related Rent ID</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in charges %}
+            <tr>
+                <td><strong>{{ c.name }}</strong></td>
+                <td>{{ c.description }}</td>
+                <td>₱{{ c.total|floatformat:2 }}</td>
+                <td>{{ c.rent.id }}</td>
+                <td>
+                    <a href="{% url 'other_charges_update' c.pk %}" class="btn-small">Edit</a>
+                    <a href="{% url 'other_charges_delete' c.pk %}" class="btn-small btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" style="text-align:center; color:#bbb;">No additional charges found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+.page-container {
+    background: linear-gradient(135deg, #6D3A8E, #5A2D82);
+    color: #FFFADA;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(45, 10, 67, 0.3);
+}
+.page-title {
+    font-size: 1.8rem;
+    color: #FFCD7B;
+    margin-bottom: 5px;
+}
+.page-subtitle {
+    color: #f0f0f0;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #FFFADA;
+    color: #2D0A43;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.styled-table th {
+    background: #FFA719;
+    color: #2D0A43;
+    padding: 12px;
+    text-align: left;
+}
+.styled-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #E9ECEF;
+}
+.btn, .btn-small {
+    background: #7A3DB8;
+    color: #FFFADA;
+    text-decoration: none;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    transition: 0.3s ease;
+}
+.btn:hover, .btn-small:hover {
+    background: #FFA719;
+    color: #2D0A43;
+}
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+.btn-danger:hover {
+    background: #ff5b5b;
+}
+</style>
+{% endblock %}

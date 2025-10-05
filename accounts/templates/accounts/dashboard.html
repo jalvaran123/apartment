@@ -1434,106 +1434,221 @@
             </section>
         </div>
 
+        
+        <!-- ============================
+             REPLACED TENANTS SECTION
+             (inserted by ChatGPT)
+             ============================ -->
         <div id="tenants" class="content-tab">
             <header>
                 <span class="date">10:03 PM PST 9/1/2025</span>
             </header>
-            <section class="tenant-section">
-                <div class="section-header">
-                    <h1>TENANTS MANAGEMENT</h1>
-                    <button class="btn-primary" onclick="openAddTenantModal()">
-                        <span class="btn-icon">+</span>
-                        Add New Tenant
-                    </button>
+
+            <!-- Tenants management UI (replaced) -->
+            <style>
+                /* Scoped tenants styles to avoid colliding with existing CSS */
+                #tenants .section { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+                #tenants .timestamp { color: #666; font-size: 12px; }
+                #tenants h2 { margin-top: 0; color: #4a148c; }
+                #tenants .add-btn { background-color: #ff9800; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; float: right; }
+                #tenants .search-bar { display:flex; gap:10px; margin-bottom:20px; align-items:center; }
+                #tenants .search-input { flex:1; padding:10px; border:1px solid #ddd; border-radius:4px; }
+                #tenants .status-dropdown { padding:10px; border:1px solid #ddd; border-radius:4px; }
+                #tenants table { width:100%; border-collapse:collapse; margin-top:20px; }
+                #tenants th { background-color:#ff9800; color:white; padding:12px; text-align:left; }
+                #tenants td { padding:12px; border-bottom:1px solid #eee; }
+                #tenants .status-active { background-color:#ff9800; color:white; padding:4px 8px; border-radius:4px; }
+                #tenants .action-btn { background:none; border:none; margin-right:5px; cursor:pointer; font-size:16px; }
+                #tenants .view-btn { color:#9c27b0; } #tenants .edit-btn { color:#9c27b0; } #tenants .delete-btn { color:#f44336; }
+                #tenants .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); }
+                #tenants .modal-content { background-color:white; margin:10% auto; padding:20px; border-radius:8px; width:80%; max-width:700px; }
+                @media (max-width:480px) { #tenants .search-bar { flex-direction:column; gap:8px; } #tenants .add-btn { float:none; width:100%; } }
+            </style>
+
+            <div class="section">
+                <div class="timestamp">10:03 PM PST 9/1/2025</div>
+                <h2>TENANTS MANAGEMENT</h2>
+                <button class="add-btn" onclick="openAddModal()">+ Add New Tenant</button>
+
+                <div class="search-bar">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search tenants by name or unit...">
+                    <div class="search-icon">🔍</div>
+                    <select class="status-dropdown" id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="archived">Archived</option>
+                    </select>
                 </div>
 
-                <div class="search-filter-bar">
-                    <div class="search-box">
-                        <input type="text" id="tenantSearch" placeholder="Search tenants by name or unit..."
-                            onkeyup="searchTenants()">
-                        <span class="search-icon">🔍</span>
-                    </div>
-                    <div class="filter-options">
-                        <select id="statusFilter" onchange="filterTenants()">
-                            <option value="all">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="archived">Archived</option>
-                        </select>
-                    </div>
-                </div>
+                <table id="tenantTable">
+                    <thead>
+                        <tr>
+                            <th>TENANT ID</th>
+                            <th>FULL NAME</th>
+                            <th>UNIT</th>
+                            <th>PHONE</th>
+                            <th>MOVE IN DATE</th>
+                            <th>STATUS</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-status="active">
+                            <td>#001</td>
+                            <td>Juan Cruz Santos</td>
+                            <td>Unit 101 - Monterde Heights</td>
+                            <td>09171234567</td>
+                            <td>Jan 15, 2024</td>
+                            <td><span class="status-active">ACTIVE</span></td>
+                            <td>
+                                <button class="action-btn view-btn" onclick="viewTenant(this)">👁️</button>
+                                <button class="action-btn edit-btn" onclick="editTenant(this)">✏️</button>
+                                <button class="action-btn delete-btn" onclick="deleteTenant(this)">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr data-status="active">
+                            <td>#002</td>
+                            <td>Maria Luz Garcia</td>
+                            <td>Unit 102 - Monterde Heights</td>
+                            <td>09187654321</td>
+                            <td>Feb 01, 2024</td>
+                            <td><span class="status-active">ACTIVE</span></td>
+                            <td>
+                                <button class="action-btn view-btn" onclick="viewTenant(this)">👁️</button>
+                                <button class="action-btn edit-btn" onclick="editTenant(this)">✏️</button>
+                                <button class="action-btn delete-btn" onclick="deleteTenant(this)">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr data-status="active">
+                            <td>#003</td>
+                            <td>Pedro Jose Rodriguez</td>
+                            <td>Unit 102 - Monterde Heights</td>
+                            <td>09191112233</td>
+                            <td>Feb 01, 2024</td>
+                            <td><span class="status-active">ACTIVE</span></td>
+                            <td>
+                                <button class="action-btn view-btn" onclick="viewTenant(this)">👁️</button>
+                                <button class="action-btn edit-btn" onclick="editTenant(this)">✏️</button>
+                                <button class="action-btn delete-btn" onclick="deleteTenant(this)">🗑️</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-                <div class="table-container">
-                    <table class="tenant-table">
-                        <thead>
-                            <tr>
-                                <th>Tenant ID</th>
-                                <th>Full Name</th>
-                                <th>Unit</th>
-                                <th>Phone</th>
-                                <th>Move In Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tenantTableBody">
-                            <tr data-tenant-id="1" data-status="active">
-                                <td data-label="Tenant ID">#001</td>
-                                <td data-label="Full Name">Juan Cruz Santos</td>
-                                <td data-label="Unit">Unit 101 - Monterde Heights</td>
-                                <td data-label="Phone">09171234567</td>
-                                <td data-label="Move In Date">Jan 15, 2024</td>
-                                <td data-label="Status"><span class="status-badge status-active">Active</span></td>
-                                <td data-label="Actions">
-                                    <div class="action-buttons">
-                                        <button class="btn-view" onclick="viewTenant(1)"
-                                            title="View Details">👁️</button>
-                                        <button class="btn-edit" onclick="editTenant(1)" title="Edit Tenant">✏️</button>
-                                        <button class="btn-delete" onclick="deleteTenant(1)"
-                                            title="Delete Tenant">🗑️</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-tenant-id="2" data-status="active">
-                                <td data-label="Tenant ID">#002</td>
-                                <td data-label="Full Name">Maria Luz Garcia</td>
-                                <td data-label="Unit">Unit 102 - Monterde Heights</td>
-                                <td data-label="Phone">09187654321</td>
-                                <td data-label="Move In Date">Feb 01, 2024</td>
-                                <td data-label="Status"><span class="status-badge status-active">Active</span></td>
-                                <td data-label="Actions">
-                                    <div class="action-buttons">
-                                        <button class="btn-view" onclick="viewTenant(2)"
-                                            title="View Details">👁️</button>
-                                        <button class="btn-edit" onclick="editTenant(2)" title="Edit Tenant">✏️</button>
-                                        <button class="btn-delete" onclick="deleteTenant(2)"
-                                            title="Delete Tenant">🗑️</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-tenant-id="3" data-status="active">
-                                <td data-label="Tenant ID">#003</td>
-                                <td data-label="Full Name">Pedro Jose Rodriguez</td>
-                                <td data-label="Unit">Unit 102 - Monterde Heights</td>
-                                <td data-label="Phone">09191112233</td>
-                                <td data-label="Move In Date">Feb 01, 2024</td>
-                                <td data-label="Status"><span class="status-badge status-active">Active</span></td>
-                                <td data-label="Actions">
-                                    <div class="action-buttons">
-                                        <button class="btn-view" onclick="viewTenant(3)"
-                                            title="View Details">👁️</button>
-                                        <button class="btn-edit" onclick="editTenant(3)" title="Edit Tenant">✏️</button>
-                                        <button class="btn-delete" onclick="deleteTenant(3)"
-                                            title="Delete Tenant">🗑️</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <!-- Add New Tenant Modal -->
+            <div id="addModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeAddModal()">&times;</span>
+                    <h2>Add New Tenant</h2>
+                    <form id="addTenantForm">
+                        <div class="form-group">
+                            <label>First Name *</label>
+                            <input type="text" id="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Middle Name</label>
+                            <input type="text" id="middleName">
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name *</label>
+                            <input type="text" id="lastName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number *</label>
+                            <input type="tel" id="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Assign Unit *</label>
+                            <select id="unit" required>
+                                <option value="">Select Unit</option>
+                                <option>Unit 101 - Monterde Heights</option>
+                                <option>Unit 102 - Monterde Heights</option>
+                                <option>Unit 201 - Pine View</option>
+                                <option>Unit 202 - Pine View</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Move In Date *</label>
+                            <input type="date" id="moveInDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Move Out Date</label>
+                            <input type="date" id="moveOutDate">
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Tenant</button>
+                    </form>
                 </div>
-            </section>
+            </div>
+
+            <script>
+                const modal = document.getElementById('addModal');
+                const form = document.getElementById('addTenantForm');
+                const tbody = document.querySelector('#tenantTable tbody');
+
+                function openAddModal() { modal.style.display = 'block'; }
+                function closeAddModal() { modal.style.display = 'none'; }
+
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const id = '#' + String(tbody.rows.length + 1).padStart(3, '0');
+                    const fn = document.getElementById('firstName').value || '';
+                    const mn = document.getElementById('middleName').value || '';
+                    const ln = document.getElementById('lastName').value || '';
+                    const fullName = [fn, mn, ln].filter(Boolean).join(' ');
+                    const unit = document.getElementById('unit').value;
+                    const phone = document.getElementById('phone').value;
+                    const moveInVal = document.getElementById('moveInDate').value;
+                    const moveInDate = moveInVal ? new Date(moveInVal).toLocaleDateString('en-US', { month:'short', day:'2-digit', year:'numeric' }) : '-';
+
+                    const row = document.createElement('tr');
+                    row.setAttribute('data-status','active');
+                    row.innerHTML = `
+                        <td>${id}</td>
+                        <td>${fullName}</td>
+                        <td>${unit}</td>
+                        <td>${phone}</td>
+                        <td>${moveInDate}</td>
+                        <td><span class="status-active">ACTIVE</span></td>
+                        <td>
+                            <button class="action-btn view-btn" onclick="viewTenant(this)">👁️</button>
+                            <button class="action-btn edit-btn" onclick="editTenant(this)">✏️</button>
+                            <button class="action-btn delete-btn" onclick="deleteTenant(this)">🗑️</button>
+                        </td>`;
+                    tbody.appendChild(row);
+                    closeAddModal();
+                    form.reset();
+                });
+
+                window.onclick = (event) => { if (event.target == modal) closeAddModal(); }
+
+                function viewTenant(btn) { alert('Viewing tenant: ' + btn.closest('tr').cells[1].innerText); }
+                function editTenant(btn) { alert('Editing tenant: ' + btn.closest('tr').cells[1].innerText); }
+                function deleteTenant(btn) { 
+                    if(confirm('Delete ' + btn.closest('tr').cells[1].innerText + '?')) btn.closest('tr').remove();
+                }
+
+                document.getElementById('searchInput').addEventListener('keyup', function() {
+                    const filter = this.value.toLowerCase();
+                    document.querySelectorAll('#tenantTable tbody tr').forEach(row => {
+                        row.style.display = row.innerText.toLowerCase().includes(filter) ? '' : 'none';
+                    });
+                });
+
+                document.getElementById('statusFilter').addEventListener('change', function() {
+                    const status = this.value;
+                    document.querySelectorAll('#tenantTable tbody tr').forEach(row => {
+                        if (status === 'all') row.style.display = '';
+                        else row.style.display = row.dataset.status === status ? '' : 'none';
+                    });
+                });
+            </script>
         </div>
-
-        <div id="units" class="content-tab">
+        <!-- ============================
+             END REPLACED TENANTS SECTION
+             ============================ -->
+<div id="units" class="content-tab">
             <header>
                 <span class="date">10:03 PM PST 9/1/2025</span>
             </header>

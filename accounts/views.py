@@ -1,16 +1,31 @@
-# accounts/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import Apartment, Unit, Tenant, Visitor, Payment, Bill, PaymentMethod
-from .forms import ApartmentForm, UnitForm, TenantForm, VisitorForm, PaymentForm, BillForm, PaymentMethodForm
 from django.utils import timezone
 from datetime import timedelta
+from django.contrib.auth import logout
+
+from .models import (
+    Apartment, Unit, Tenant, Visitor, Payment, Bill, PaymentMethod, OtherCharges
+)
+from .forms import (
+    ApartmentForm, UnitForm, TenantForm,
+    VisitorForm, PaymentForm, BillForm, PaymentMethodForm, OtherChargesForm
+)
+
+# ---------------------- AUTH ----------------------
+
 
 def index(request):
     return render(request, "accounts/index.html")
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
 
 def login_view(request):
     form = AuthenticationForm(request, data=request.POST or None)
@@ -20,61 +35,93 @@ def login_view(request):
             login(request, user)
             return redirect("dashboard")
         else:
-            return render(request, "accounts/login.html", {"form": form, "error": "Invalid credentials"})
+            return render(request, "accounts/login.html", {
+                "form": form,
+                "error": "Invalid credentials"
+            })
     return render(request, "accounts/login.html", {"form": form})
 
-# Dashboard + Home
+
+# ---------------------- DASHBOARD ----------------------
+
 @login_required
 def dashboard(request):
-    return render(request, "accounts/dashboard.html")
+    tenants = Tenant.objects.select_related("unit__apartment").all()
+    units = Unit.objects.select_related("apartment").all()
+    payments = Payment.objects.select_related("unit").order_by("-id")[:5]
+    bills = Bill.objects.select_related("unit").order_by("-month")[:5]
+    charges = OtherCharges.objects.select_related("rent").order_by("-id")[:5]
+
+    stats = {
+        "tenant_count": tenants.count(),
+        "unit_count": units.count(),
+        "payment_count": Payment.objects.count(),
+        "bill_count": Bill.objects.count(),
+        "charge_count": OtherCharges.objects.count(),
+    }
+
+    context = {
+        "tenants": tenants,
+        "units": units,
+        "payments": payments,
+        "bills": bills,
+        "charges": charges,
+        "stats": stats,
+    }
+    return render(request, "accounts/dashboard.html", context)
+
 
 @login_required
 def home(request):
     return render(request, "accounts/home.html")
 
-# New pages (Tenants / Units / Rent) — these are the UI pages you asked for
+
+# ---------------------- TENANTS / UNITS / RENT PAGES ----------------------
+
 @login_required
 def tenants(request):
-    # fetch tenants and related unit->apartment to avoid N+1
     tenants_qs = Tenant.objects.select_related("unit__apartment").all()
     return render(request, "accounts/tenants.html", {"tenants": tenants_qs})
 
+
 @login_required
 def units(request):
-    return render(request, "accounts/units.html")
+    units = Unit.objects.select_related("apartment").all()
+    return render(request, "accounts/units.html", {"units": units})
+
 
 @login_required
 def rent(request):
-    return render(request, "accounts/rent.html")
+    payments = Payment.objects.select_related("unit").all()
+    return render(request, "accounts/rent.html", {"payments": payments})
 
-# Apartments CRUD
+
+# ---------------------- APARTMENTS CRUD ----------------------
+
 @login_required
 def apartment_list(request):
     apartments = Apartment.objects.all()
     return render(request, "accounts/apartment_list.html", {"apartments": apartments})
 
+
 @login_required
 def apartment_create(request):
-    if request.method == "POST":
-        form = ApartmentForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("apartment_list")
-    else:
-        form = ApartmentForm()
+    form = ApartmentForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("apartment_list")
     return render(request, "accounts/apartment_form.html", {"form": form})
+
 
 @login_required
 def apartment_update(request, pk):
     apartment = get_object_or_404(Apartment, pk=pk)
-    if request.method == "POST":
-        form = ApartmentForm(request.POST, instance=apartment)
-        if form.is_valid():
-            form.save()
-            return redirect("apartment_list")
-    else:
-        form = ApartmentForm(instance=apartment)
+    form = ApartmentForm(request.POST or None, instance=apartment)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("apartment_list")
     return render(request, "accounts/apartment_form.html", {"form": form})
+
 
 @login_required
 def apartment_delete(request, pk):
@@ -82,34 +129,33 @@ def apartment_delete(request, pk):
     apartment.delete()
     return redirect("apartment_list")
 
-# Units CRUD
+
+# ---------------------- UNITS CRUD ----------------------
+
 @login_required
 def unit_list(request):
     units = Unit.objects.all()
     return render(request, "accounts/unit_list.html", {"units": units})
 
+
 @login_required
 def unit_create(request):
-    if request.method == "POST":
-        form = UnitForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("unit_list")
-    else:
-        form = UnitForm()
+    form = UnitForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("unit_list")
     return render(request, "accounts/unit_form.html", {"form": form})
+
 
 @login_required
 def unit_update(request, pk):
     unit = get_object_or_404(Unit, pk=pk)
-    if request.method == "POST":
-        form = UnitForm(request.POST, instance=unit)
-        if form.is_valid():
-            form.save()
-            return redirect("unit_list")
-    else:
-        form = UnitForm(instance=unit)
+    form = UnitForm(request.POST or None, instance=unit)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("unit_list")
     return render(request, "accounts/unit_form.html", {"form": form})
+
 
 @login_required
 def unit_delete(request, pk):
@@ -117,35 +163,34 @@ def unit_delete(request, pk):
     unit.delete()
     return redirect("unit_list")
 
-# Tenants CRUD (redirect to tenants page)
+
+# ---------------------- TENANTS CRUD ----------------------
+
 @login_required
 def tenant_create(request):
-    if request.method == "POST":
-        form = TenantForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("tenants")
-    else:
-        form = TenantForm()
+    form = TenantForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("tenants")
     return render(request, "accounts/tenant_form.html", {"form": form})
+
 
 @login_required
 def tenant_update(request, pk):
     tenant = get_object_or_404(Tenant, pk=pk)
-    if request.method == "POST":
-        form = TenantForm(request.POST, instance=tenant)
-        if form.is_valid():
-            form.save()
-            return redirect("tenants")
-    else:
-        form = TenantForm(instance=tenant)
+    form = TenantForm(request.POST or None, instance=tenant)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("tenants")
     return render(request, "accounts/tenant_form.html", {"form": form})
+
 
 @login_required
 def tenant_delete(request, pk):
     tenant = get_object_or_404(Tenant, pk=pk)
     tenant.delete()
     return redirect("tenants")
+
 
 @login_required
 def assign_tenant_to_unit(request, tenant_pk, unit_pk):
@@ -156,74 +201,71 @@ def assign_tenant_to_unit(request, tenant_pk, unit_pk):
         tenant.save()
     return redirect("tenants")
 
-# Visitors
+
+# ---------------------- VISITORS ----------------------
+
 @login_required
 def visitor_list(request):
     visitors = Visitor.objects.all()
     return render(request, "accounts/visitor_list.html", {"visitors": visitors})
 
+
 @login_required
 def visitor_create(request):
-    if request.method == "POST":
-        form = VisitorForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("visitor_list")
-    else:
-        form = VisitorForm()
+    form = VisitorForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("visitor_list")
     return render(request, "accounts/visitor_form.html", {"form": form})
 
-# Bills + Payments
+
+# ---------------------- BILLS & PAYMENTS ----------------------
+
 @login_required
 def bill_list(request):
-    bills = Bill.objects.all()
+    bills = Bill.objects.select_related("unit").all()
     return render(request, "accounts/bill_list.html", {"bills": bills})
+
 
 @login_required
 def bill_create(request):
-    if request.method == "POST":
-        form = BillForm(request.POST)
-        if form.is_valid():
-            bill = form.save(commit=False)
-            bill.room_price = bill.unit.price
-            bill.save()
-            return redirect("bill_list")
-    else:
-        form = BillForm()
+    form = BillForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        bill = form.save(commit=False)
+        bill.room_price = bill.unit.price
+        bill.save()
+        return redirect("bill_list")
     return render(request, "accounts/bill_form.html", {"form": form})
+
 
 @login_required
 def payment_list(request):
-    payments = Payment.objects.all()
+    payments = Payment.objects.select_related("unit").all()
     return render(request, "accounts/payment_list.html", {"payments": payments})
+
 
 @login_required
 def payment_create(request):
-    if request.method == "POST":
-        form = PaymentForm(request.POST)
-        if form.is_valid():
-            payment = form.save()
-            # mark status if linked bill exists for same unit (best-effort)
-            if payment.unit and payment.unit.bills.exists():
-                latest_bill = payment.unit.bills.latest("month")
-                payment.rent_status = "Paid" if payment.amount >= latest_bill.total_rent else "Not Paid"
-                payment.save()
-            return redirect("payment_list")
-    else:
-        form = PaymentForm()
+    form = PaymentForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        payment = form.save()
+        if payment.unit and payment.unit.bills.exists():
+            latest_bill = payment.unit.bills.latest("month")
+            payment.rent_status = "Paid" if payment.amount >= latest_bill.total_rent else "Not Paid"
+            payment.save()
+        return redirect("payment_list")
     return render(request, "accounts/payment_form.html", {"form": form})
+
 
 @login_required
 def payment_update(request, pk):
     payment = get_object_or_404(Payment, pk=pk)
-    if request.method == "POST":
-        form = PaymentForm(request.POST, instance=payment)
-        if form.is_valid():
-            form.save()
-            return redirect("payment_list")
-    else:
-        form = PaymentForm(instance=payment)
+    form = PaymentForm(request.POST or None, instance=payment)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("payment_list")
     return render(request, "accounts/payment_form.html", {"form": form})
+
 
 @login_required
 def payment_delete(request, pk):
@@ -233,25 +275,76 @@ def payment_delete(request, pk):
         return redirect("payment_list")
     return render(request, "accounts/payment_confirm_delete.html", {"payment": payment})
 
+
 @login_required
 def payment_method_create(request):
-    if request.method == "POST":
-        form = PaymentMethodForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("payment_list")
-    else:
-        form = PaymentMethodForm()
+    form = PaymentMethodForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("payment_list")
     return render(request, "accounts/payment_method_form.html", {"form": form})
 
-# Rent Reminders
+
+# ---------------------- OTHER CHARGES ----------------------
+# ---------------------- OTHER CHARGES ----------------------
+
+@login_required
+def other_charges_list(request):
+    from .models import OtherCharges
+    charges = OtherCharges.objects.select_related("bill").all()
+    return render(request, "accounts/other_charges_list.html", {"charges": charges})
+
+
+@login_required
+def other_charges_create(request):
+    from .forms import OtherChargesForm
+    form = OtherChargesForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("other_charges_list")
+    return render(request, "accounts/other_charges_form.html", {"form": form})
+
+
+@login_required
+def other_charges_list(request):
+    charges = OtherCharges.objects.select_related("rent").all()
+    return render(request, "accounts/other_charges_list.html", {"charges": charges})
+
+
+@login_required
+def other_charges_create(request):
+    form = OtherChargesForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("other_charges_list")
+    return render(request, "accounts/other_charges_form.html", {"form": form})
+
+
+@login_required
+def other_charges_update(request, pk):
+    charge = get_object_or_404(OtherCharges, pk=pk)
+    form = OtherChargesForm(request.POST or None, instance=charge)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("other_charges_list")
+    return render(request, "accounts/other_charges_form.html", {"form": form})
+
+
+@login_required
+def other_charges_delete(request, pk):
+    charge = get_object_or_404(OtherCharges, pk=pk)
+    charge.delete()
+    return redirect("other_charges_list")
+
+
+# ---------------------- RENT REMINDERS ----------------------
+
 @login_required
 def rent_reminders(request):
     today = timezone.now().date()
     due_date = today + timedelta(days=7)
-
-    # Safe, simple: exclude bills for units that already have payments recorded (by unit_id).
-    paid_unit_ids = list(Payment.objects.values_list("unit_id", flat=True).distinct())
-    overdue_bills = Bill.objects.filter(month__lte=due_date).exclude(unit_id__in=paid_unit_ids)
-
+    paid_unit_ids = list(Payment.objects.values_list(
+        "unit_id", flat=True).distinct())
+    overdue_bills = Bill.objects.filter(
+        month__lte=due_date).exclude(unit_id__in=paid_unit_ids)
     return render(request, "accounts/rent_reminders.html", {"overdue_bills": overdue_bills})

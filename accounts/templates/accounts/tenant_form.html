@@ -1,80 +1,202 @@
 {% extends "accounts/base.html" %}
 {% block content %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .page-container {
+        background: #fff;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        max-width: 900px;
+        margin: 30px auto;
+    }
+
+    .page-title {
+        font-size: 26px;
+        color: #4a148c;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+
+    .page-subtitle {
+        font-size: 15px;
+        color: #777;
+        margin-bottom: 30px;
+    }
+
+    .form-section-title {
+        font-size: 18px;
+        color: #ff9800;
+        margin: 30px 0 15px 0;
+        font-weight: bold;
+        border-bottom: 2px solid #ff9800;
+        padding-bottom: 5px;
+    }
+
+    .modern-form {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-label {
+        color: #4a148c;
+        font-weight: bold;
+        margin-bottom: 6px;
+        font-size: 14px;
+    }
+
+    input, select, textarea {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #ff9800;
+        box-shadow: 0 0 5px rgba(255, 152, 0, 0.4);
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        background-color: #ff9800;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+        background-color: #e68900;
+    }
+
+    .btn-secondary {
+        background-color: #ccc;
+        color: #333;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        display: inline-block;
+        transition: 0.3s;
+    }
+
+    .btn-secondary:hover {
+        background-color: #b3b3b3;
+    }
+
+    .full-width {
+        grid-column: span 2;
+    }
+</style>
+
 <div class="page-container">
-    <h2 class="page-title">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Tenant</h2>
-    <p class="page-subtitle">Fill in the tenant information below.</p>
+    <h2 class="page-title">{% if form.instance.pk %}Edit Tenant{% else %}Add New Tenant{% endif %}</h2>
+    <p class="page-subtitle">Please fill in all required fields below to register a new tenant.</p>
 
     <form method="POST" class="modern-form">
         {% csrf_token %}
-        
+
+        <!-- Personal Information -->
+        <div class="form-section-title">Personal Information</div>
         <div class="form-grid">
             <div class="form-group">
-                <label class="form-label">First Name</label>
+                <label class="form-label">First Name *</label>
                 {{ form.first_name }}
             </div>
-            
+
             <div class="form-group">
                 <label class="form-label">Middle Name (Optional)</label>
                 {{ form.middle_name }}
             </div>
-            
+
             <div class="form-group">
-                <label class="form-label">Last Name</label>
+                <label class="form-label">Last Name *</label>
                 {{ form.last_name }}
             </div>
-            
+
             <div class="form-group">
-                <label class="form-label">Contact Number</label>
+                <label class="form-label">Contact Number *</label>
                 {{ form.contact_number }}
             </div>
-            
+
             <div class="form-group">
-                <label class="form-label">Date of Birth</label>
+                <label class="form-label">Date of Birth *</label>
                 {{ form.date_of_birth }}
             </div>
-            
+
             <div class="form-group">
-                <label class="form-label">Sex</label>
+                <label class="form-label">Gender *</label>
                 {{ form.sex }}
             </div>
         </div>
-        
+
+        <!-- Address Section -->
         <div class="form-section-title">Address Information</div>
-        
         <div class="form-grid">
             <div class="form-group full-width">
-                <label class="form-label">Street</label>
+                <label class="form-label">Street / Home Address *</label>
                 {{ form.original_address }}
             </div>
-            
+
             <div class="form-group">
                 <label class="form-label">Barangay</label>
-                <input type="text" class="form-input">
+                <input type="text" class="form-input" placeholder="e.g. Poblacion, Sto. Niño">
             </div>
-            
+
             <div class="form-group">
                 <label class="form-label">City</label>
-                <input type="text" class="form-input">
+                <input type="text" class="form-input" placeholder="e.g. Manila">
             </div>
-            
+
             <div class="form-group">
                 <label class="form-label">Region</label>
-                <input type="text" class="form-input">
+                <input type="text" class="form-input" placeholder="e.g. NCR">
             </div>
         </div>
-        
+
+        <!-- Unit Assignment -->
         <div class="form-section-title">Unit Assignment</div>
-        
-        <div class="form-group">
-            <label class="form-label">Room ID</label>
-            {{ form.unit }}
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Assigned Unit *</label>
+                {{ form.unit }}
+            </div>
         </div>
-        
+
+        <!-- Action Buttons -->
         <div class="form-actions">
-            <button type="submit" class="btn">
-                <span style="margin-right: 8px;">💾</span> Submit
-            </button>
-            <a href="{% url 'tenant_list' %}" class="btn-secondary">Cancel</a>
+            <button type="submit" class="btn">💾 Save Tenant</button>
+            <a href="{% url 'tenants' %}" class="btn-secondary">Cancel</a>
         </div>
     </form>
 </div>

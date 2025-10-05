@@ -1,0 +1,99 @@
+{% extends "accounts/base.html" %}
+{% block content %}
+<div class="page-container">
+    <h2 class="page-title">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Other Charge</h2>
+    <p class="page-subtitle">Specify details for additional rent-related charges.</p>
+
+    <form method="POST" class="modern-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_name">Charge Name:</label>
+            {{ form.name }}
+        </div>
+        <div class="form-group">
+            <label for="id_description">Description:</label>
+            {{ form.description }}
+        </div>
+        <div class="form-group">
+            <label for="id_total">Total Amount (₱):</label>
+            {{ form.total }}
+        </div>
+        <div class="form-group">
+            <label for="id_rent">Related Rent Record:</label>
+            {{ form.rent }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn">
+                <span style="margin-right:8px;">💾</span> Save
+            </button>
+            <a href="{% url 'other_charges_list' %}" class="btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.page-container {
+    background: linear-gradient(135deg, #6D3A8E, #5A2D82);
+    color: #FFFADA;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(45, 10, 67, 0.3);
+}
+.page-title {
+    font-size: 1.8rem;
+    color: #FFCD7B;
+    margin-bottom: 10px;
+}
+.page-subtitle {
+    color: #f0f0f0;
+    margin-bottom: 25px;
+    font-size: 0.95rem;
+}
+.modern-form label {
+    display: block;
+    margin-bottom: 6px;
+    color: #FFFADA;
+    font-weight: 600;
+}
+.modern-form input, .modern-form select, .modern-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #E9ECEF;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 16px;
+}
+.form-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+}
+.btn {
+    background: #7A3DB8;
+    color: #FFFADA;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.btn:hover {
+    background: #FFA719;
+    color: #2D0A43;
+}
+.btn-secondary {
+    background: #ccc;
+    color: #2D0A43;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+.btn-secondary:hover {
+    background: #FFCD7B;
+    color: #2D0A43;
+}
+</style>
+{% endblock %}

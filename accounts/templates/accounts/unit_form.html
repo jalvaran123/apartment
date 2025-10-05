@@ -1,18 +1,138 @@
 {% extends "accounts/base.html" %}
 {% block content %}
-<div class="page-container">
-    <h2 class="page-title">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Room</h2>
-    <p class="page-subtitle">Configure room unit details.</p>
+<style>
+    body {
+        background: linear-gradient(135deg, #9D6DC2 0%, #5A2D82 100%);
+        font-family: "Poppins", sans-serif;
+        color: #f0f0f0;
+    }
 
-    <form method="POST" class="modern-form">
+    .page-container {
+        background: #6D3A8E;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 15px rgba(90,45,130,0.25);
+        max-width: 850px;
+        margin: 40px auto;
+    }
+
+    .page-title {
+        font-size: 28px;
+        color: #FFFADA;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .page-subtitle {
+        color: #FFCD7B;
+        font-size: 15px;
+        margin-bottom: 25px;
+    }
+
+    form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    label {
+        color: #FFFADA;
+        font-weight: 600;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #E9ECEF;
+        font-size: 14px;
+        background: #FFFADA;
+        color: #2a2a2a;
+    }
+
+    .form-actions {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        background: linear-gradient(135deg, #FFA719, #FFCD7B);
+        color: #2a2a2a;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-secondary {
+        background: #7A3DB8;
+        color: #FFFADA;
+        border-radius: 8px;
+        padding: 10px 20px;
+        text-decoration: none;
+    }
+</style>
+
+<div class="page-container">
+    <h2 class="page-title">
+        {% if form.instance.pk %}Edit Unit{% else %}Add New Unit{% endif %}
+    </h2>
+    <p class="page-subtitle">Fill in the unit details below.</p>
+
+    <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
-        
+
+        <div>
+            <label>Apartment</label>
+            {{ form.apartment }}
+        </div>
+
+        <div>
+            <label>Floor</label>
+            <input type="number" name="floor" value="{{ form.floor.value|default_if_none:'' }}" required min="1">
+        </div>
+
+        <div>
+            <label>Current Tenants</label>
+            <input type="number" name="tenants_num" value="{{ form.tenants_num.value|default_if_none:'' }}" required min="0">
+        </div>
+
+        <div>
+            <label>Max Tenants</label>
+            <input type="number" name="max_tenants" value="{{ form.max_tenants.value|default_if_none:'' }}" required min="1">
+        </div>
+
+        <div>
+            <label>Price</label>
+            <input type="number" name="price" value="{{ form.price.value|default_if_none:'' }}" step="0.01" required>
+        </div>
+
+        <div>
+            <label>Room Status</label>
+            <select name="roomStatus" required>
+                <option value="O" {% if form.roomStatus.value == 'O' %}selected{% endif %}>Occupied</option>
+                <option value="V" {% if form.roomStatus.value == 'V' %}selected{% endif %}>Vacant</option>
+                <option value="UM" {% if form.roomStatus.value == 'UM' %}selected{% endif %}>Under Maintenance</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Status</label>
+            <select name="status" required>
+                <option value="active" {% if form.status.value == 'active' %}selected{% endif %}>Active</option>
+                <option value="archived" {% if form.status.value == 'archived' %}selected{% endif %}>Archived</option>
+            </select>
+        </div>
+
         <div class="form-actions">
-            <button type="submit" class="btn">
-                <span style="margin-right: 8px;">💾</span> Submit
-            </button>
             <a href="{% url 'unit_list' %}" class="btn-secondary">Cancel</a>
+            <button type="submit" class="btn">💾 Save Unit</button>
         </div>
     </form>
 </div>

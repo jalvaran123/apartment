@@ -32,6 +32,7 @@
     table {
         width: 100%;
         border-collapse: collapse;
+        margin-top: 20px;
         border-radius: 8px;
         overflow: hidden;
         background: rgba(255,255,255,0.05);
@@ -39,54 +40,56 @@
 
     th, td {
         padding: 14px 16px;
-        text-align: left;
         border-bottom: 1px solid rgba(255,255,255,0.1);
+        text-align: left;
     }
 
     th {
         background: linear-gradient(135deg, #FFA719, #FFCD7B);
         color: #2a2a2a;
-        font-weight: 700;
     }
 
-    tr:hover {
-        background: rgba(255,255,255,0.08);
-    }
-
-    .badge-unpaid {
-        background-color: #7A3DB8;
-        color: #FFFADA;
-        padding: 4px 10px;
+    .btn {
+        background: linear-gradient(135deg, #FFA719, #FFCD7B);
+        color: #2a2a2a;
         border-radius: 8px;
+        padding: 10px 20px;
         font-weight: 600;
+        text-decoration: none;
+        transition: 0.3s;
+        display: inline-block;
+    }
+
+    .btn:hover {
+        transform: scale(1.03);
     }
 </style>
 
 <div class="page-container">
-    <h2 class="page-title">Rent Reminders</h2>
-    <p class="page-subtitle">Unpaid or upcoming due bills within the next 7 days.</p>
+    <h2 class="page-title">Other Charges</h2>
+    <p class="page-subtitle">Additional costs applied to rent (parking, maintenance, etc.).</p>
+
+    <a href="#" class="btn">➕ Add Charge</a>
 
     <table>
         <thead>
             <tr>
-                <th>Unit</th>
-                <th>Billing Date</th>
-                <th>Period Covered</th>
-                <th>Balance</th>
-                <th>Status</th>
+                <th>Rent ID</th>
+                <th>Charge Name</th>
+                <th>Amount</th>
+                <th>Description</th>
             </tr>
         </thead>
         <tbody>
-            {% for bill in overdue_bills %}
+            {% for charge in other_charges %}
             <tr>
-                <td>{{ bill.unit.name }}</td>
-                <td>{{ bill.date_charged }}</td>
-                <td>{{ bill.date_covered }}</td>
-                <td>₱{{ bill.balance }}</td>
-                <td><span class="badge-unpaid">Unpaid</span></td>
+                <td>{{ charge.rent.id }}</td>
+                <td>{{ charge.name }}</td>
+                <td>₱{{ charge.total }}</td>
+                <td>{{ charge.description }}</td>
             </tr>
             {% empty %}
-            <tr><td colspan="5" style="text-align:center; color:#a0a0a0;">No unpaid bills due soon.</td></tr>
+            <tr><td colspan="4" style="text-align:center; color:#a0a0a0;">No additional charges found.</td></tr>
             {% endfor %}
         </tbody>
     </table>

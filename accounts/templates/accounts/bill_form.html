@@ -1,16 +1,133 @@
 {% extends "accounts/base.html" %}
 {% block content %}
-<div class="page-container">
-    <h2 class="page-title">{% if form.instance.pk %}Edit{% else %}Create{% endif %} Bill</h2>
-    <p class="page-subtitle">Fill in the bill details below.</p>
+<style>
+    body {
+        background: linear-gradient(135deg, #9D6DC2 0%, #5A2D82 100%);
+        font-family: "Poppins", sans-serif;
+        color: #f0f0f0;
+    }
 
-    <form method="post" class="modern-form">
+    .page-container {
+        background: #6D3A8E;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 15px rgba(90,45,130,0.25);
+        max-width: 850px;
+        margin: 40px auto;
+    }
+
+    .page-title {
+        font-size: 28px;
+        color: #FFFADA;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .page-subtitle {
+        color: #FFCD7B;
+        font-size: 15px;
+        margin-bottom: 25px;
+    }
+
+    form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    label {
+        color: #FFFADA;
+        font-weight: 600;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #E9ECEF;
+        font-size: 14px;
+        background: #FFFADA;
+        color: #2a2a2a;
+    }
+
+    .form-actions {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        background: linear-gradient(135deg, #FFA719, #FFCD7B);
+        color: #2a2a2a;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn-secondary {
+        background: #7A3DB8;
+        color: #FFFADA;
+        border-radius: 8px;
+        padding: 10px 20px;
+        text-decoration: none;
+    }
+</style>
+
+<div class="page-container">
+    <h2 class="page-title">{% if form.instance.pk %}Edit Bill{% else %}Add New Bill{% endif %}</h2>
+    <p class="page-subtitle">Enter billing and rent information.</p>
+
+    <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div>
+            <label>Unit</label>
+            {{ form.unit }}
+        </div>
+        <div>
+            <label>Date Charged</label>
+            <input type="date" name="date_charged" value="{{ form.date_charged.value|default_if_none:'' }}" required>
+        </div>
+        <div>
+            <label>Period Covered</label>
+            <input type="date" name="date_covered" value="{{ form.date_covered.value|default_if_none:'' }}" required>
+        </div>
+        <div>
+            <label>Water Bill (₱)</label>
+            <input type="number" name="waterBill" step="0.01" value="{{ form.waterBill.value|default_if_none:'' }}" required>
+        </div>
+        <div>
+            <label>Meter Start</label>
+            <input type="number" name="meter_start_month" step="0.01" value="{{ form.meter_start_month.value|default_if_none:'' }}">
+        </div>
+        <div>
+            <label>Meter End</label>
+            <input type="number" name="meter_end_month" step="0.01" value="{{ form.meter_end_month.value|default_if_none:'' }}">
+        </div>
+        <div>
+            <label>Total Meter Usage</label>
+            <input type="number" name="meter_total" step="0.01" value="{{ form.meter_total.value|default_if_none:'' }}">
+        </div>
+        <div>
+            <label>Balance (₱)</label>
+            <input type="number" name="balance" step="0.01" value="{{ form.balance.value|default_if_none:'' }}">
+        </div>
+        <div>
+            <label>Status</label>
+            <select name="paid">
+                <option value="False" {% if not form.paid.value %}selected{% endif %}>Unpaid</option>
+                <option value="True" {% if form.paid.value %}selected{% endif %}>Paid</option>
+            </select>
+        </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn">💾 Save</button>
             <a href="{% url 'bill_list' %}" class="btn-secondary">Cancel</a>
+            <button type="submit" class="btn">💾 Save Bill</button>
         </div>
     </form>
 </div>
