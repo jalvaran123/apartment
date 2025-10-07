@@ -1,202 +1,237 @@
 {% extends "accounts/base.html" %}
 {% block content %}
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f9f9f9;
-        margin: 0;
-        padding: 20px;
-    }
+   .tenant-form-container {
+    background: #6D3A8E;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 15px rgba(90,45,130,0.25);
+    max-width: 850px;
+    margin: 40px auto;
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #f0f0f0;
+    font-family: "Poppins", sans-serif;
+}
+
+    
 
     .page-container {
-        background: #fff;
-        border-radius: 10px;
-        padding: 30px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        max-width: 900px;
-        margin: 30px auto;
+        background: #6D3A8E;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 15px rgba(90,45,130,0.25);
+        max-width: 850px;
+        margin: 40px auto;
+        border: 1px solid rgba(255,255,255,0.08);
     }
 
     .page-title {
-        font-size: 26px;
-        color: #4a148c;
-        margin-bottom: 8px;
-        font-weight: bold;
+        font-size: 28px;
+        color: #FFFADA;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.3);
     }
 
     .page-subtitle {
+        color: #FFCD7B;
         font-size: 15px;
-        color: #777;
-        margin-bottom: 30px;
+        margin-bottom: 25px;
     }
 
-    .form-section-title {
-        font-size: 18px;
-        color: #ff9800;
-        margin: 30px 0 15px 0;
-        font-weight: bold;
-        border-bottom: 2px solid #ff9800;
-        padding-bottom: 5px;
-    }
-
-    .modern-form {
-        display: flex;
-        flex-direction: column;
-        gap: 25px;
-    }
-
-    .form-grid {
+    form {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 20px;
     }
 
-    .form-group {
-        display: flex;
-        flex-direction: column;
+    fieldset {
+        grid-column: 1 / -1;
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
     }
 
-    .form-label {
-        color: #4a148c;
-        font-weight: bold;
+    legend {
+        font-size: 16px;
+        font-weight: 600;
+        color: #FFCD7B;
+        padding: 0 10px;
+    }
+
+    label {
+        display: block;
+        font-weight: 600;
+        color: #FFFADA;
         margin-bottom: 6px;
         font-size: 14px;
     }
 
-    input, select, textarea {
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #E9ECEF;
+        border-radius: 8px;
         font-size: 14px;
-        transition: border-color 0.3s, box-shadow 0.3s;
+        background: #FFFADA;
+        color: #2a2a2a;
+        transition: all 0.3s ease;
     }
 
-    input:focus, select:focus, textarea:focus {
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #FFA719;
+        box-shadow: 0 0 6px rgba(255,167,25,0.6);
         outline: none;
-        border-color: #ff9800;
-        box-shadow: 0 0 5px rgba(255, 152, 0, 0.4);
+    }
+
+    textarea {
+        resize: none;
+        min-height: 80px;
     }
 
     .form-actions {
+        grid-column: 1 / -1;
         display: flex;
         justify-content: flex-end;
         gap: 15px;
         margin-top: 30px;
+        flex-wrap: wrap;
     }
 
     .btn {
-        background-color: #ff9800;
-        color: white;
+        background: linear-gradient(135deg, #FFA719, #FFCD7B);
+        color: #2a2a2a;
         border: none;
-        border-radius: 6px;
+        border-radius: 8px;
         padding: 10px 20px;
         cursor: pointer;
         font-size: 15px;
-        font-weight: 500;
-        transition: background-color 0.3s ease;
+        font-weight: 600;
+        transition: transform 0.15s ease-in-out, box-shadow 0.3s;
     }
 
     .btn:hover {
-        background-color: #e68900;
+        transform: scale(1.03);
+        box-shadow: 0 0 10px rgba(255,167,25,0.4);
     }
 
     .btn-secondary {
-        background-color: #ccc;
-        color: #333;
+        background-color: #7A3DB8;
+        color: #f0f0f0;
         text-decoration: none;
         padding: 10px 20px;
-        border-radius: 6px;
-        display: inline-block;
+        border-radius: 8px;
         transition: 0.3s;
+        font-weight: 500;
     }
 
     .btn-secondary:hover {
-        background-color: #b3b3b3;
+        background-color: #8F56C8;
     }
 
-    .full-width {
-        grid-column: span 2;
+    @media (max-width: 600px) {
+        .page-container {
+            padding: 25px;
+        }
+        .page-title {
+            font-size: 24px;
+        }
+        form {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
-<div class="page-container">
-    <h2 class="page-title">{% if form.instance.pk %}Edit Tenant{% else %}Add New Tenant{% endif %}</h2>
-    <p class="page-subtitle">Please fill in all required fields below to register a new tenant.</p>
+<div class="tenant-form-container">
 
-    <form method="POST" class="modern-form">
+    <h2 class="page-title">
+        {% if form.instance.pk %}Edit Tenant{% else %}Add New Tenant{% endif %}
+    </h2>
+    <p class="page-subtitle">Fill in the tenant details below.</p>
+
+    <form method="POST">
         {% csrf_token %}
 
         <!-- Personal Information -->
-        <div class="form-section-title">Personal Information</div>
-        <div class="form-grid">
-            <div class="form-group">
-                <label class="form-label">First Name *</label>
-                {{ form.first_name }}
+        <fieldset>
+            <legend>Personal Information</legend>
+
+            <div>
+                <label>First Name</label>
+                <input type="text" name="first_name" value="{{ form.first_name.value|default_if_none:'' }}" required>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Middle Name (Optional)</label>
-                {{ form.middle_name }}
+            <div>
+                <label>Middle Name</label>
+                <input type="text" name="middle_name" value="{{ form.middle_name.value|default_if_none:'' }}">
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Last Name *</label>
-                {{ form.last_name }}
+            <div>
+                <label>Last Name</label>
+                <input type="text" name="last_name" value="{{ form.last_name.value|default_if_none:'' }}" required>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Contact Number *</label>
-                {{ form.contact_number }}
+            <div>
+                <label>Sex</label>
+                <select name="sex" required>
+                    <option value="M" {% if form.sex.value == 'M' %}selected{% endif %}>Male</option>
+                    <option value="F" {% if form.sex.value == 'F' %}selected{% endif %}>Female</option>
+                </select>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Date of Birth *</label>
-                {{ form.date_of_birth }}
+            <div>
+                <label>Date of Birth</label>
+                <input type="date" name="date_of_birth" value="{{ form.date_of_birth.value|default_if_none:'' }}" required>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Gender *</label>
-                {{ form.sex }}
+            <div>
+                <label>Contact Number</label>
+                <input type="text" name="contact_number" value="{{ form.contact_number.value|default_if_none:'' }}" required>
             </div>
-        </div>
+        </fieldset>
 
-        <!-- Address Section -->
-        <div class="form-section-title">Address Information</div>
-        <div class="form-grid">
-            <div class="form-group full-width">
-                <label class="form-label">Street / Home Address *</label>
-                {{ form.original_address }}
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Barangay</label>
-                <input type="text" class="form-input" placeholder="e.g. Poblacion, Sto. Niño">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">City</label>
-                <input type="text" class="form-input" placeholder="e.g. Manila">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Region</label>
-                <input type="text" class="form-input" placeholder="e.g. NCR">
-            </div>
-        </div>
+        <!-- Address Information -->
+    
 
         <!-- Unit Assignment -->
-        <div class="form-section-title">Unit Assignment</div>
-        <div class="form-grid">
-            <div class="form-group">
-                <label class="form-label">Assigned Unit *</label>
+        <fieldset>
+            <legend>Unit Assignment</legend>
+
+            <div>
+                <label>Unit</label>
                 {{ form.unit }}
             </div>
-        </div>
 
-        <!-- Action Buttons -->
+            <div>
+                <label>Move-In Date</label>
+                <input type="date" name="move_in_date" value="{{ form.move_in_date.value|default_if_none:'' }}" required>
+            </div>
+
+            <div>
+                <label>Move-Out Date</label>
+                <input type="date" name="move_out_date" value="{{ form.move_out_date.value|default_if_none:'' }}">
+            </div>
+
+            <div>
+                <label>Status</label>
+                <select name="status" required>
+                    <option value="active" {% if form.status.value == 'active' %}selected{% endif %}>Active</option>
+                    <option value="archived" {% if form.status.value == 'archived' %}selected{% endif %}>Archived</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <!-- Form Actions -->
         <div class="form-actions">
-            <button type="submit" class="btn">💾 Save Tenant</button>
             <a href="{% url 'tenants' %}" class="btn-secondary">Cancel</a>
+            <button type="submit" class="btn">💾 Save Tenant</button>
         </div>
     </form>
 </div>

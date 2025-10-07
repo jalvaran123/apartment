@@ -1,18 +1,89 @@
 {% extends "accounts/base.html" %}
 {% block content %}
-<div class="page-container">
-    <h2 class="page-title">Add Payment Method</h2>
-    <p class="page-subtitle">Configure a new payment method.</p>
+<style>
+    body {
+        background: linear-gradient(135deg, #9D6DC2 0%, #5A2D82 100%);
+        font-family: "Poppins", sans-serif;
+        color: #f0f0f0;
+    }
+    .page-container {
+        background: #6D3A8E;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 15px rgba(90,45,130,0.25);
+        max-width: 600px;
+        margin: 40px auto;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+    .page-title {
+        font-size: 26px;
+        color: #FFFADA;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    label {
+        color: #FFFADA;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+    input[type="text"] {
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #E9ECEF;
+        background: #FFFADA;
+        color: #2a2a2a;
+        font-size: 14px;
+        width: 100%;
+    }
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .btn {
+        background: linear-gradient(135deg, #FFA719, #FFCD7B);
+        color: #2a2a2a;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+    .btn:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 10px rgba(255,167,25,0.4);
+    }
+    .btn-secondary {
+        background-color: #7A3DB8;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 15px;
+    }
+</style>
 
-    <form method="POST" class="modern-form">
+<div class="page-container">
+    <h2 class="page-title">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Payment Method</h2>
+
+    <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
-        
+        <div>
+            <label for="name">Method Name</label>
+            {{ form.name }}
+        </div>
         <div class="form-actions">
-            <button type="submit" class="btn">
-                <span style="margin-right: 8px;">💾</span> Save
-            </button>
             <a href="{% url 'payment_list' %}" class="btn-secondary">Cancel</a>
+            <button type="submit" class="btn">💾 Save</button>
         </div>
     </form>
 </div>

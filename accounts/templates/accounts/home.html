@@ -1,5 +1,65 @@
 {% extends "accounts/base.html" %}
 {% block content %}
+<style>
+    body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #9D6DC2 0%, #5A2D82 100%);
+        color: #fff;
+        margin: 0;
+        padding: 0;
+    }
+
+    .page-title {
+        text-align: center;
+        font-size: 28px;
+        margin-top: 20px;
+        color: #FFFADA;
+    }
+
+    .page-subtitle {
+        text-align: center;
+        font-size: 16px;
+        margin-bottom: 40px;
+        color: #FFCD7B;
+    }
+
+    .card-grid {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+        padding: 20px;
+    }
+
+    .card {
+        background: linear-gradient(135deg, #6D3A8E, #9D6DC2);
+        border: 2px solid #FF9800;
+        color: #FFFADA;
+        border-radius: 16px;
+        text-decoration: none;
+        text-align: center;
+        padding: 30px;
+        width: 250px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(90, 45, 130, 0.3);
+    }
+
+    .card:hover {
+        transform: translateY(-6px);
+        background: linear-gradient(135deg, #FF9800, #FFCD7B);
+        color: #2a2a2a;
+        box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+    }
+
+    .card h3 {
+        margin: 10px 0;
+    }
+
+    .card p {
+        font-size: 14px;
+    }
+</style>
+
 <h2 class="page-title">Dashboard</h2>
 <p class="page-subtitle">Welcome to the Apartment Management System.</p>
 

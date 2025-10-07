@@ -5,6 +5,8 @@
         background: linear-gradient(135deg, #9D6DC2 0%, #5A2D82 100%);
         font-family: "Poppins", sans-serif;
         color: #f0f0f0;
+        margin: 0;
+        padding: 0;
     }
 
     .page-container {
@@ -14,6 +16,7 @@
         box-shadow: 0 4px 15px rgba(90,45,130,0.25);
         max-width: 850px;
         margin: 40px auto;
+        border: 1px solid rgba(255,255,255,0.08);
     }
 
     .page-title {
@@ -21,6 +24,7 @@
         color: #FFFADA;
         font-weight: 700;
         margin-bottom: 10px;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.3);
     }
 
     .page-subtitle {
@@ -36,25 +40,28 @@
     }
 
     label {
-        color: #FFFADA;
-        font-weight: 600;
-        margin-bottom: 6px;
         display: block;
+        font-weight: 600;
+        color: #FFFADA;
+        margin-bottom: 6px;
+        font-size: 14px;
     }
 
-    input, select, textarea {
+    select, input[type="text"], input[type="number"], input[type="date"], textarea {
         width: 100%;
-        padding: 10px;
-        border-radius: 8px;
+        padding: 10px 12px;
         border: 1px solid #E9ECEF;
+        border-radius: 8px;
         font-size: 14px;
         background: #FFFADA;
         color: #2a2a2a;
+        transition: all 0.3s ease;
     }
 
-    textarea {
-        min-height: 80px;
-        resize: vertical;
+    input:focus, select:focus, textarea:focus {
+        border-color: #FFA719;
+        box-shadow: 0 0 6px rgba(255,167,25,0.6);
+        outline: none;
     }
 
     .form-actions {
@@ -63,56 +70,104 @@
         justify-content: flex-end;
         gap: 15px;
         margin-top: 30px;
+        flex-wrap: wrap;
     }
 
     .btn {
         background: linear-gradient(135deg, #FFA719, #FFCD7B);
         color: #2a2a2a;
+        border: none;
         border-radius: 8px;
         padding: 10px 20px;
-        font-weight: 600;
         cursor: pointer;
-        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        transition: transform 0.15s ease-in-out, box-shadow 0.3s;
+    }
+
+    .btn:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 10px rgba(255,167,25,0.4);
     }
 
     .btn-secondary {
-        background: #7A3DB8;
-        color: #FFFADA;
-        border-radius: 8px;
-        padding: 10px 20px;
+        background-color: #7A3DB8;
+        color: #f0f0f0;
         text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        transition: 0.3s;
+        font-weight: 500;
+    }
+
+    .btn-secondary:hover {
+        background-color: #8F56C8;
+    }
+
+    @media (max-width: 600px) {
+        .page-container {
+            padding: 25px;
+        }
+        .page-title {
+            font-size: 24px;
+        }
+        form {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
 <div class="page-container">
-    <h2 class="page-title">{% if form.instance.pk %}Edit Payment{% else %}Add New Payment{% endif %}</h2>
-    <p class="page-subtitle">Enter payment details below.</p>
+    <h2 class="page-title">
+        {% if form.instance.pk %}Edit Payment{% else %}Add New Payment{% endif %}
+    </h2>
+    <p class="page-subtitle">Fill in the payment details below.</p>
 
     <form method="POST">
         {% csrf_token %}
+        {{ form.non_field_errors }}
+
         <div>
-            <label>Payment Date</label>
-            <input type="date" name="date" value="{{ form.date.value|default_if_none:'' }}" required>
+            <label>Tenant</label>
+            {{ form.tenant }}
         </div>
 
         <div>
-            <label>Amount</label>
-            <input type="number" name="amount" step="0.01" value="{{ form.amount.value|default_if_none:'' }}" required>
+            <label>Unit</label>
+            {{ form.unit }}
+        </div>
+
+        <div>
+            <label>Date of Payment</label>
+            <input 
+                type="date" 
+                name="date_of_payment" 
+                value="{{ form.date_of_payment.value|default_if_none:'' }}" 
+                required>
+        </div>
+
+        <div>
+            <label>Amount (₱)</label>
+            {{ form.amount }}
         </div>
 
         <div>
             <label>Payment Method</label>
-            <input type="text" name="method" value="{{ form.method.value|default_if_none:'' }}" required>
+            {{ form.method }}
         </div>
 
         <div>
-            <label>Change</label>
-            <input type="number" name="change" step="0.01" value="{{ form.change.value|default_if_none:'' }}">
+            <label>Status</label>
+            <select name="status" required>
+                <option value="" disabled {% if not form.instance.status %}selected{% endif %}>-- Select Status --</option>
+                <option value="Paid" {% if form.instance.status == "Paid" %}selected{% endif %}>Paid</option>
+                <option value="Not Paid" {% if form.instance.status == "Not Paid" %}selected{% endif %}>Not Paid</option>
+            </select>
         </div>
 
         <div style="grid-column: 1 / -1;">
-            <label>Description</label>
-            <textarea name="description">{{ form.description.value|default_if_none:'' }}</textarea>
+            <label>Remarks</label>
+            {{ form.remarks }}
         </div>
 
         <div class="form-actions">

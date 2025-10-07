@@ -1,3 +1,5 @@
+from .forms import PaymentForm, PaymentMethodForm
+from .models import Payment, PaymentMethod
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login
@@ -6,6 +8,9 @@ from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth import logout
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 
 from .models import (
     Apartment, Unit, Tenant, Visitor, Payment, Bill, PaymentMethod, OtherCharges
@@ -80,8 +85,9 @@ def home(request):
 
 @login_required
 def tenants(request):
-    tenants_qs = Tenant.objects.select_related("unit__apartment").all()
-    return render(request, "accounts/tenants.html", {"tenants": tenants_qs})
+    tenants = Tenant.objects.all()
+    form = TenantForm()
+    return render(request, "accounts/tenants.html", {"tenants": tenants, "form": form})
 
 
 @login_required
@@ -165,13 +171,14 @@ def unit_delete(request, pk):
 
 
 # ---------------------- TENANTS CRUD ----------------------
-
 @login_required
 def tenant_create(request):
     form = TenantForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         form.save()
-        return redirect("tenants")
+        # Return simple success for AJAX
+        return JsonResponse({"success": True})
+    # For normal GET (render inside tenants.html overlay)
     return render(request, "accounts/tenant_form.html", {"form": form})
 
 
@@ -240,48 +247,114 @@ def bill_create(request):
 
 @login_required
 def payment_list(request):
-    payments = Payment.objects.select_related("unit").all()
+    payments = Payment.objects.all().order_by('-date_of_payment')
     return render(request, "accounts/payment_list.html", {"payments": payments})
 
 
 @login_required
 def payment_create(request):
-    form = PaymentForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        payment = form.save()
-        if payment.unit and payment.unit.bills.exists():
-            latest_bill = payment.unit.bills.latest("month")
-            payment.rent_status = "Paid" if payment.amount >= latest_bill.total_rent else "Not Paid"
+    if request.method == "POST":
+        form = PaymentForm(request.POST)
+        if form.is_valid():
+            payment = form.save(commit=False)
+
+            # Optional logic: check latest bill and set rent status
+            if payment.unit and hasattr(payment.unit, "bills") and payment.unit.bills.exists():
+                latest_bill = payment.unit.bills.latest("month")
+                payment.rent_status = "Paid" if payment.amount >= latest_bill.total_rent else "Not Paid"
+
             payment.save()
-        return redirect("payment_list")
+            return redirect("payment_list")
+    else:
+        form = PaymentForm()
+
+    return render(request, "accounts/payment_form.html", {"form": form})
+
+
+# ------------------------------------------------------------------
+# PAYMENT VIEWS
+# ------------------------------------------------------------------
+
+
+@login_required
+def payment_list(request):
+    payments = Payment.objects.all().order_by('-date_of_payment')
+    return render(request, "accounts/payment_list.html", {"payments": payments})
+
+
+@login_required
+def payment_create(request):
+    # ✅ Ensure PaymentMethod has data so dropdown won't be empty
+    if not PaymentMethod.objects.exists():
+        PaymentMethod.objects.bulk_create([
+            PaymentMethod(name="Cash"),
+            PaymentMethod(name="Gcash"),
+            PaymentMethod(name="Bank Transfer"),
+        ])
+
+    if request.method == "POST":
+        form = PaymentForm(request.POST)
+        if form.is_valid():
+            payment = form.save(commit=False)
+
+            # Optional: Automatically set rent status if you have logic
+            if payment.unit and hasattr(payment.unit, 'bills') and payment.unit.bills.exists():
+                latest_bill = payment.unit.bills.latest("month")
+                payment.rent_status = (
+                    "Paid" if payment.amount >= latest_bill.total_rent else "Not Paid"
+                )
+
+            payment.save()
+            return redirect("payment_list")
+    else:
+        form = PaymentForm()
+
     return render(request, "accounts/payment_form.html", {"form": form})
 
 
 @login_required
 def payment_update(request, pk):
     payment = get_object_or_404(Payment, pk=pk)
-    form = PaymentForm(request.POST or None, instance=payment)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        return redirect("payment_list")
+
+    # ✅ Ensure dropdown always has options
+    if not PaymentMethod.objects.exists():
+        PaymentMethod.objects.bulk_create([
+            PaymentMethod(name="Cash"),
+            PaymentMethod(name="Gcash"),
+            PaymentMethod(name="Bank Transfer"),
+        ])
+
+    if request.method == "POST":
+        form = PaymentForm(request.POST, instance=payment)
+        if form.is_valid():
+            form.save()
+            return redirect("payment_list")
+    else:
+        form = PaymentForm(instance=payment)
+
     return render(request, "accounts/payment_form.html", {"form": form})
 
 
 @login_required
 def payment_delete(request, pk):
     payment = get_object_or_404(Payment, pk=pk)
-    if request.method == "POST":
-        payment.delete()
-        return redirect("payment_list")
-    return render(request, "accounts/payment_confirm_delete.html", {"payment": payment})
+    payment.delete()
+    return redirect("payment_list")
 
+
+# ------------------------------------------------------------------
+# PAYMENT METHOD VIEWS (optional but needed if you’re using payment_method_form.html)
+# ------------------------------------------------------------------
 
 @login_required
 def payment_method_create(request):
-    form = PaymentMethodForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        return redirect("payment_list")
+    if request.method == "POST":
+        form = PaymentMethodForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("payment_list")
+    else:
+        form = PaymentMethodForm()
     return render(request, "accounts/payment_method_form.html", {"form": form})
 
 

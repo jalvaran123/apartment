@@ -1,99 +1,176 @@
 {% extends "accounts/base.html" %}
 {% block content %}
-<div class="page-container">
-    <h2 class="page-title">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Other Charge</h2>
-    <p class="page-subtitle">Specify details for additional rent-related charges.</p>
+<style>
+    body {
+        background: linear-gradient(135deg, #9D6DC2 0%, #5A2D82 100%);
+        font-family: "Poppins", sans-serif;
+        color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+    }
 
-    <form method="POST" class="modern-form">
+    .page-container {
+        background: #6D3A8E;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 15px rgba(90,45,130,0.25);
+        max-width: 850px;
+        margin: 40px auto;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .page-title {
+        font-size: 28px;
+        color: #FFFADA;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .page-subtitle {
+        color: #FFCD7B;
+        font-size: 15px;
+        margin-bottom: 25px;
+    }
+
+    form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    label {
+        display: block;
+        font-weight: 600;
+        color: #FFFADA;
+        margin-bottom: 6px;
+        font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #E9ECEF;
+        border-radius: 8px;
+        font-size: 14px;
+        background: #FFFADA;
+        color: #2a2a2a;
+        transition: all 0.3s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #FFA719;
+        box-shadow: 0 0 6px rgba(255,167,25,0.6);
+        outline: none;
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .form-actions {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        background: linear-gradient(135deg, #FFA719, #FFCD7B);
+        color: #2a2a2a;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 600;
+        transition: transform 0.15s ease-in-out, box-shadow 0.3s;
+    }
+
+    .btn:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 10px rgba(255,167,25,0.4);
+    }
+
+    .btn-secondary {
+        background-color: #7A3DB8;
+        color: #f0f0f0;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        transition: 0.3s;
+        font-weight: 500;
+    }
+
+    .btn-secondary:hover {
+        background-color: #8F56C8;
+    }
+
+    @media (max-width: 600px) {
+        .page-container {
+            padding: 25px;
+        }
+        .page-title {
+            font-size: 24px;
+        }
+    }
+</style>
+
+<div class="page-container">
+    <h2 class="page-title">
+        {% if form.instance.pk %}Edit Other Charge{% else %}Add New Other Charge{% endif %}
+    </h2>
+    <p class="page-subtitle">Fill in the other charge details below.</p>
+
+    <form method="POST">
         {% csrf_token %}
-        <div class="form-group">
-            <label for="id_name">Charge Name:</label>
-            {{ form.name }}
+
+        <div>
+            <label>Tenant</label>
+            {{ form.tenant }}
         </div>
-        <div class="form-group">
-            <label for="id_description">Description:</label>
-            {{ form.description }}
+
+        <div>
+            <label>Unit</label>
+            {{ form.unit }}
         </div>
-        <div class="form-group">
-            <label for="id_total">Total Amount (₱):</label>
-            {{ form.total }}
+
+        <div style="grid-column: 1 / -1;">
+            <label>Description</label>
+            <input type="text" name="description" value="{{ form.description.value|default_if_none:'' }}" required>
         </div>
-        <div class="form-group">
-            <label for="id_rent">Related Rent Record:</label>
-            {{ form.rent }}
+
+        <div>
+            <label>Amount (₱)</label>
+            <input type="number" step="0.01" name="amount" value="{{ form.amount.value|default_if_none:'' }}" required min="0">
+        </div>
+
+        <div>
+            <label>Date</label>
+            <input type="date" name="date" value="{{ form.date.value|default_if_none:'' }}" required>
+        </div>
+
+        <div>
+            <label>Status</label>
+            <select name="status" required>
+                <option value="Paid" {% if form.status.value == 'Paid' %}selected{% endif %}>Paid</option>
+                <option value="Unpaid" {% if form.status.value == 'Unpaid' %}selected{% endif %}>Unpaid</option>
+                <option value="Overdue" {% if form.status.value == 'Overdue' %}selected{% endif %}>Overdue</option>
+            </select>
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn">
-                <span style="margin-right:8px;">💾</span> Save
-            </button>
             <a href="{% url 'other_charges_list' %}" class="btn-secondary">Cancel</a>
+            <button type="submit" class="btn">💾 Save Charge</button>
         </div>
     </form>
 </div>
-
-<style>
-.page-container {
-    background: linear-gradient(135deg, #6D3A8E, #5A2D82);
-    color: #FFFADA;
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 6px 20px rgba(45, 10, 67, 0.3);
-}
-.page-title {
-    font-size: 1.8rem;
-    color: #FFCD7B;
-    margin-bottom: 10px;
-}
-.page-subtitle {
-    color: #f0f0f0;
-    margin-bottom: 25px;
-    font-size: 0.95rem;
-}
-.modern-form label {
-    display: block;
-    margin-bottom: 6px;
-    color: #FFFADA;
-    font-weight: 600;
-}
-.modern-form input, .modern-form select, .modern-form textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #E9ECEF;
-    border-radius: 8px;
-    font-size: 1rem;
-    margin-bottom: 16px;
-}
-.form-actions {
-    display: flex;
-    justify-content: flex-start;
-    gap: 10px;
-}
-.btn {
-    background: #7A3DB8;
-    color: #FFFADA;
-    padding: 10px 20px;
-    border-radius: 8px;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-.btn:hover {
-    background: #FFA719;
-    color: #2D0A43;
-}
-.btn-secondary {
-    background: #ccc;
-    color: #2D0A43;
-    padding: 10px 20px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-.btn-secondary:hover {
-    background: #FFCD7B;
-    color: #2D0A43;
-}
-</style>
 {% endblock %}

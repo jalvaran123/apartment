@@ -134,12 +134,12 @@
 
         <div>
             <label>Number of Units</label>
-            <input type="number" name="units" value="{{ form.units.value|default_if_none:'' }}" required min="1">
+            <input type="number" name="number_of_units" value="{{ form.number_of_units.value|default_if_none:'' }}" required min="1">
         </div>
 
         <div>
             <label>Number of Tenants</label>
-            <input type="number" name="tenants" value="{{ form.tenants.value|default_if_none:'' }}" required min="0">
+            <input type="number" name="number_of_tenants" value="{{ form.number_of_tenants.value|default_if_none:'' }}" required min="0">
         </div>
 
         <div>
