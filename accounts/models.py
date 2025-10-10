@@ -1,8 +1,8 @@
 from django.db import models
+from decimal import Decimal  # ✅ Needed for Decimal-safe arithmetic
+
 
 # ---------------------- APARTMENT ----------------------
-
-
 class Apartment(models.Model):
     STATUS_CHOICES = [
         ('active', 'Active'),
@@ -101,6 +101,9 @@ class PaymentMethod(models.Model):
 
 # ---------------------- BILL ----------------------
 class Bill(models.Model):
+    tenant = models.ForeignKey(
+        'Tenant', on_delete=models.CASCADE, related_name='bills', null=True, blank=True
+    )
     unit = models.ForeignKey(
         Unit, on_delete=models.CASCADE, related_name='bills')
     month = models.DateField()
@@ -111,24 +114,37 @@ class Bill(models.Model):
     current_meter = models.FloatField(default=0)
     electric_bill = models.DecimalField(
         max_digits=10, decimal_places=2, default=0)
-    visitors_charge = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0)
     total_rent = models.DecimalField(
         max_digits=10, decimal_places=2, default=0)
 
     def calculate_electric_bill(self):
-        return (self.current_meter - self.previous_meter) * 11
+        return Decimal(self.current_meter - self.previous_meter) * Decimal(11)
 
     def save(self, *args, **kwargs):
+        # Step 1: calculate electric and base totals
         self.electric_bill = self.calculate_electric_bill()
-        self.total_rent = (
-            self.room_price
-            + self.water_bill
-            + self.electric_bill
-            + self.visitors_charge
-            + sum(oc.total for oc in self.other_charges.all())
+        base_total = (
+            Decimal(self.room_price or 0)
+            + Decimal(self.water_bill or 0)
+            + Decimal(self.electric_bill or 0)
         )
+
+        # Step 2: Save first (so Bill gets a primary key)
+        is_new = self.pk is None
         super().save(*args, **kwargs)
+
+        # Step 3: Only recalc after we have a PK
+        total_other = Decimal(0)
+        if not is_new:  # only if already saved once
+            total_other = sum(
+                Decimal(oc.total or 0) for oc in self.other_charges.all()
+            )
+
+        # Step 4: Update total_rent if needed
+        new_total = base_total + total_other
+        if self.total_rent != new_total:
+            self.total_rent = new_total
+            super().save(update_fields=['total_rent'])
 
     def __str__(self):
         return f"Bill for {self.unit} - {self.month.strftime('%B %Y')}"
@@ -152,6 +168,8 @@ class Payment(models.Model):
         Tenant, on_delete=models.CASCADE, related_name='payments')
     unit = models.ForeignKey(
         Unit, on_delete=models.CASCADE, related_name='payments')
+    bill = models.ForeignKey(  # ✅ added connection to Bill
+        Bill, on_delete=models.CASCADE, related_name='payments', null=True, blank=True)
     date_of_payment = models.DateField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     method = models.ForeignKey(
@@ -160,4 +178,4 @@ class Payment(models.Model):
     rent_status = models.CharField(max_length=20, default='Not Paid')
 
     def __str__(self):
-        return f"Payment {self.amount} by {self.tenant} on {self.date_of_payment}"
+        return f"Payment ₱{self.amount} by {self.tenant} on {self.date_of_payment}"

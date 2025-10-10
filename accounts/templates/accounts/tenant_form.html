@@ -1,28 +1,25 @@
 {% extends "accounts/base.html" %}
 {% block content %}
 <style>
-   .tenant-form-container {
-    background: #6D3A8E;
-    border-radius: 16px;
-    padding: 40px;
-    box-shadow: 0 4px 15px rgba(90,45,130,0.25);
-    max-width: 850px;
-    margin: 40px auto;
-    border: 1px solid rgba(255,255,255,0.08);
-    color: #f0f0f0;
-    font-family: "Poppins", sans-serif;
-}
+    .tenant-form-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 40px 20px;
+        min-height: 100vh;
+        background: transparent;
+    }
 
-    
-
-    .page-container {
+    .tenant-form-container {
         background: #6D3A8E;
         border-radius: 16px;
         padding: 40px;
         box-shadow: 0 4px 15px rgba(90,45,130,0.25);
+        width: 100%;
         max-width: 850px;
-        margin: 40px auto;
         border: 1px solid rgba(255,255,255,0.08);
+        color: #f0f0f0;
+        font-family: "Poppins", sans-serif;
     }
 
     .page-title {
@@ -31,12 +28,14 @@
         font-weight: 700;
         margin-bottom: 10px;
         text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        text-align: center;
     }
 
     .page-subtitle {
         color: #FFCD7B;
         font-size: 15px;
         margin-bottom: 25px;
+        text-align: center;
     }
 
     form {
@@ -137,7 +136,7 @@
     }
 
     @media (max-width: 600px) {
-        .page-container {
+        .tenant-form-container {
             padding: 25px;
         }
         .page-title {
@@ -149,8 +148,8 @@
     }
 </style>
 
+<div class="tenant-form-wrapper">
 <div class="tenant-form-container">
-
     <h2 class="page-title">
         {% if form.instance.pk %}Edit Tenant{% else %}Add New Tenant{% endif %}
     </h2>
@@ -159,7 +158,6 @@
     <form method="POST">
         {% csrf_token %}
 
-        <!-- Personal Information -->
         <fieldset>
             <legend>Personal Information</legend>
 
@@ -197,10 +195,6 @@
             </div>
         </fieldset>
 
-        <!-- Address Information -->
-    
-
-        <!-- Unit Assignment -->
         <fieldset>
             <legend>Unit Assignment</legend>
 
@@ -228,11 +222,11 @@
             </div>
         </fieldset>
 
-        <!-- Form Actions -->
         <div class="form-actions">
             <a href="{% url 'tenants' %}" class="btn-secondary">Cancel</a>
             <button type="submit" class="btn">💾 Save Tenant</button>
         </div>
     </form>
+</div>
 </div>
 {% endblock %}

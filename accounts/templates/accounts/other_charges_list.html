@@ -1,97 +1,163 @@
 {% extends "accounts/base.html" %}
 {% block content %}
+<style>
+    body {
+        background: linear-gradient(135deg, #9D6DC2 0%, #5A2D82 100%);
+        font-family: "Poppins", sans-serif;
+        color: #f0f0f0;
+        margin: 0;
+        padding: 0;
+    }
+
+    .page-container {
+        background: #6D3A8E;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 4px 15px rgba(90,45,130,0.25);
+        max-width: 1000px;
+        margin: 40px auto;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    h2.page-title {
+        font-size: 28px;
+        color: #FFFADA;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .page-subtitle {
+        color: #FFCD7B;
+        font-size: 15px;
+        margin-bottom: 25px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    th, td {
+        padding: 14px 16px;
+        text-align: left;
+    }
+
+    thead {
+        background-color: #7A3DB8;
+        color: #FFFADA;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: rgba(255,255,255,0.05);
+    }
+
+    tbody tr:hover {
+        background-color: rgba(255,255,255,0.1);
+        transition: 0.3s;
+    }
+
+    .btn-small {
+        padding: 6px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-block;
+        margin-right: 8px;
+        transition: 0.3s;
+    }
+
+    .btn-small:hover {
+        transform: scale(1.05);
+    }
+
+    .btn-danger {
+        background: #D64545;
+        color: #fff;
+    }
+
+    .btn-add {
+        display: inline-block;
+        background: linear-gradient(135deg, #FFA719, #FFCD7B);
+        color: #2a2a2a;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        margin-top: 10px;
+        transition: transform 0.15s ease-in-out, box-shadow 0.3s;
+    }
+
+    .btn-add:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 10px rgba(255,167,25,0.4);
+    }
+
+    @media (max-width: 600px) {
+        .page-container {
+            padding: 25px;
+        }
+
+        table, thead, tbody, th, td, tr {
+            display: block;
+        }
+
+        th {
+            display: none;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            display: block;
+            color: #FFCD7B;
+        }
+    }
+</style>
+
 <div class="page-container">
     <h2 class="page-title">Other Charges</h2>
-    <p class="page-subtitle">Manage additional fees related to rent (parking, maintenance, etc.).</p>
+    <p class="page-subtitle">Manage all additional charges for tenants here.</p>
 
-    <a href="{% url 'other_charges_create' %}" class="btn" style="margin-bottom: 20px;">
-        <span style="margin-right: 8px;">➕</span> Add Other Charge
-    </a>
+    <a href="{% url 'other_charges_create' %}" class="btn-add">➕ Add New Charge</a>
 
-    <table class="styled-table">
+    <table>
         <thead>
             <tr>
                 <th>Charge Name</th>
                 <th>Description</th>
                 <th>Total (₱)</th>
-                <th>Related Rent ID</th>
+                <th>Related Bill ID</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for c in charges %}
             <tr>
-                <td><strong>{{ c.name }}</strong></td>
-                <td>{{ c.description }}</td>
-                <td>₱{{ c.total|floatformat:2 }}</td>
-                <td>{{ c.rent.id }}</td>
-                <td>
+                <td data-label="Charge Name"><strong>{{ c.name }}</strong></td>
+                <td data-label="Description">{{ c.description }}</td>
+                <td data-label="Total">₱{{ c.total|floatformat:2 }}</td>
+                <td data-label="Related Bill ID">{{ c.bill.id }}</td>
+                <td data-label="Actions">
                     <a href="{% url 'other_charges_update' c.pk %}" class="btn-small">Edit</a>
                     <a href="{% url 'other_charges_delete' c.pk %}" class="btn-small btn-danger">Delete</a>
                 </td>
             </tr>
             {% empty %}
-            <tr><td colspan="5" style="text-align:center; color:#bbb;">No additional charges found.</td></tr>
+            <tr>
+                <td colspan="5" style="text-align:center; color:#FFCD7B;">No charges found.</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-
-<style>
-.page-container {
-    background: linear-gradient(135deg, #6D3A8E, #5A2D82);
-    color: #FFFADA;
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 6px 20px rgba(45, 10, 67, 0.3);
-}
-.page-title {
-    font-size: 1.8rem;
-    color: #FFCD7B;
-    margin-bottom: 5px;
-}
-.page-subtitle {
-    color: #f0f0f0;
-    margin-bottom: 20px;
-    font-size: 0.95rem;
-}
-.styled-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #FFFADA;
-    color: #2D0A43;
-    border-radius: 10px;
-    overflow: hidden;
-}
-.styled-table th {
-    background: #FFA719;
-    color: #2D0A43;
-    padding: 12px;
-    text-align: left;
-}
-.styled-table td {
-    padding: 10px 14px;
-    border-bottom: 1px solid #E9ECEF;
-}
-.btn, .btn-small {
-    background: #7A3DB8;
-    color: #FFFADA;
-    text-decoration: none;
-    border: none;
-    padding: 8px 18px;
-    border-radius: 8px;
-    transition: 0.3s ease;
-}
-.btn:hover, .btn-small:hover {
-    background: #FFA719;
-    color: #2D0A43;
-}
-.btn-danger {
-    background: #dc3545;
-    color: white;
-}
-.btn-danger:hover {
-    background: #ff5b5b;
-}
-</style>
 {% endblock %}

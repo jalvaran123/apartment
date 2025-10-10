@@ -2,107 +2,126 @@
 {% block content %}
 <style>
     body {
-        font-family: "Poppins", sans-serif;
         background: linear-gradient(135deg, #9D6DC2 0%, #5A2D82 100%);
-        color: #fff;
-        margin: 0;
-        padding: 0;
+        font-family: "Poppins", sans-serif;
+        color: #FFFADA;
     }
-    .container {
+
+    .page-container {
         background: #6D3A8E;
         border-radius: 16px;
-        padding: 30px;
-        margin: 40px auto;
-        max-width: 1000px;
+        padding: 35px;
         box-shadow: 0 4px 15px rgba(90,45,130,0.25);
+        max-width: 1000px;
+        margin: 40px auto;
         border: 1px solid rgba(255,255,255,0.08);
     }
+
     h2 {
-        color: #FFFADA;
-        font-size: 26px;
-        margin-bottom: 20px;
         text-align: center;
+        color: #FFFADA;
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 25px;
     }
+
+    .btn-add {
+        display: inline-block;
+        background: linear-gradient(135deg, #FFA719, #FFCD7B);
+        color: #2a2a2a;
+        border-radius: 8px;
+        padding: 10px 18px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+
+    .btn-add:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 10px rgba(255,167,25,0.4);
+    }
+
     table {
         width: 100%;
         border-collapse: collapse;
-        background: #FFFADA;
+        margin-top: 25px;
         color: #2a2a2a;
-        border-radius: 12px;
+        background: #FFFADA;
+        border-radius: 10px;
         overflow: hidden;
     }
+
     th, td {
         padding: 12px 15px;
-        text-align: left;
+        text-align: center;
+        border-bottom: 1px solid #E9ECEF;
     }
+
     th {
-        background-color: #FF9800;
-        color: white;
+        background: #7A3DB8;
+        color: #FFFADA;
+        font-size: 15px;
     }
-    tr:nth-child(even) {
-        background: #f9f9f9;
+
+    tr:hover {
+        background: rgba(255,205,123,0.25);
     }
-    .btn {
-        padding: 8px 12px;
-        border: none;
+
+    .btn-edit, .btn-delete {
+        padding: 6px 12px;
         border-radius: 6px;
-        cursor: pointer;
+        text-decoration: none;
         font-weight: 600;
+        font-size: 14px;
+        transition: 0.3s;
+        margin: 0 3px;
     }
-    .btn-add {
-        background: linear-gradient(135deg, #FFA719, #FFCD7B);
-        color: #2a2a2a;
-        float: right;
-        margin-bottom: 15px;
-    }
+
     .btn-edit {
-        background: #9D6DC2;
-        color: #fff;
+        background-color: #FFA719;
+        color: #2a2a2a;
     }
+
     .btn-delete {
-        background: #f44336;
-        color: #fff;
+        background-color: #DC3545;
+        color: #FFFADA;
     }
-    .actions {
-        display: flex;
-        gap: 8px;
+
+    .btn-edit:hover, .btn-delete:hover {
+        opacity: 0.9;
     }
 </style>
 
-<div class="container">
+<div class="page-container">
     <h2>Payment Records</h2>
-    <a href="{% url 'payment_create' %}" class="btn btn-add">+ Add Payment</a>
+    <a href="{% url 'payment_create' %}" class="btn-add">+ Add Payment</a>
 
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Tenant</th>
-                <th>Unit</th>
+                <th>Date</th>
                 <th>Amount</th>
                 <th>Method</th>
-                <th>Date</th>
-                <th>Status</th>
+                <th>Remarks</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for payment in payments %}
             <tr>
-                <td>#{{ payment.id }}</td>
-                <td>{{ payment.tenant }}</td>
-                <td>{{ payment.unit }}</td>
+                <td>{{ payment.id }}</td>
+                <td>{{ payment.date_of_payment }}</td>
                 <td>₱{{ payment.amount }}</td>
                 <td>{{ payment.method }}</td>
-                <td>{{ payment.date_of_payment|date:"M d, Y" }}</td>
-                <td>{{ payment.rent_status }}</td>
-                <td class="actions">
-                    <a href="{% url 'payment_update' payment.id %}" class="btn btn-edit">✏️</a>
-                    <a href="{% url 'payment_delete' payment.id %}" class="btn btn-delete">🗑️</a>
+                <td>{{ payment.remarks|default:"—" }}</td>
+                <td>
+                    <a href="{% url 'payment_update' payment.id %}" class="btn-edit">Edit</a>
+                    <a href="{% url 'payment_delete' payment.id %}" class="btn-delete" onclick="return confirm('Delete this payment?')">Delete</a>
                 </td>
             </tr>
             {% empty %}
-            <tr><td colspan="8" style="text-align:center;">No payments found.</td></tr>
+            <tr><td colspan="6">No payments recorded yet.</td></tr>
             {% endfor %}
         </tbody>
     </table>

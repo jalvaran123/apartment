@@ -1,21 +1,49 @@
 {% extends 'accounts/base.html' %}
+
+{% block head_extra %}
+<style>
+  /* remove top padding or margin for this page */
+  body,
+  main,
+  .main,
+  .section {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <style>
+    :root{
+        /* match your sidebar width here. If your sidebar is 200px, this is fine.
+           If you change the sidebar width later, update this value. */
+        --sidebar-width: 220px;
+        --page-padding-right: 40px;
+    }
+
+    /* page background (keeps same look) */
     body {
         background: linear-gradient(135deg, #9D6DC2 0%, #5A2D82 100%);
         font-family: "Poppins", sans-serif;
         color: #f0f0f0;
         margin: 0;
-        padding: 20px;
+        padding: 0; /* ✅ changed from 20px 0 to 0 to remove top gap */
     }
 
+    /*
+      SECTION (main content area)
+      - left margin equals the sidebar width so it starts immediately after sidebar.
+      - width fills the remaining space (total width - sidebar - small right padding).
+    */
     .section {
         background: #6D3A8E;
         border-radius: 16px;
         padding: 30px;
         box-shadow: 0 4px 15px rgba(90,45,130,0.25);
-        max-width: 1100px;
-        margin: 30px auto;
+        margin: 0 calc(var(--page-padding-right)) 40px calc(var(--sidebar-width) + 10px); /* ✅ changed top margin to 0 */
+        width: calc(100% - var(--sidebar-width) - var(--page-padding-right) - 20px);
+        max-width: none;
         border: 1px solid rgba(255,255,255,0.08);
         position: relative;
     }
@@ -23,7 +51,7 @@
     .timestamp {
         color: #FFCD7B;
         font-size: 13px;
-        margin-bottom: 5px;
+        margin-bottom: 10px;
     }
 
     h2 {
@@ -46,9 +74,7 @@
         transition: transform 0.2s ease;
     }
 
-    .add-btn:hover {
-        transform: scale(1.05);
-    }
+    .add-btn:hover { transform: scale(1.05); }
 
     .search-bar {
         display: flex;
@@ -104,7 +130,7 @@
         font-weight: 500;
     }
 
-    /* Floating Overlay Styles */
+    /* Floating Overlay (centered over the whole viewport) */
     .overlay {
         display: none;
         position: fixed;
@@ -112,115 +138,76 @@
         width: 100%; height: 100%;
         background: rgba(0, 0, 0, 0.6);
         backdrop-filter: blur(4px);
-        z-index: 1000;
+        z-index: 2000;
         justify-content: center;
         align-items: center;
-        animation: fadeIn 0.3s ease;
+        animation: fadeIn 0.25s ease;
     }
 
-    .overlay.active {
-        display: flex;
-    }
+    .overlay.active { display: flex; }
 
     .floating-form {
         background: #7A3DB8;
-        padding: 30px;
-        border-radius: 16px;
+        padding: 28px;
+        border-radius: 14px;
         width: 90%;
-        max-width: 500px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        animation: popIn 0.4s ease;
-        color: #FFFADA;
+        max-width: 520px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+        animation: popIn 0.25s ease;
     }
 
     @keyframes popIn {
-        from { transform: scale(0.9); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
+        from { transform: translateY(-6px) scale(0.98); opacity: 0; }
+        to   { transform: translateY(0) scale(1); opacity: 1; }
     }
 
-    .floating-form h3 {
-        color: #FFFADA;
-        margin-bottom: 15px;
-        text-align: center;
-    }
-
-    label {
-        display: block;
-        margin-top: 10px;
-        font-weight: 600;
-    }
-
-    input, select {
-        width: 100%;
-        padding: 8px 10px;
-        border-radius: 8px;
-        border: 1px solid #E9ECEF;
-        background: #FFFADA;
-        color: #2a2a2a;
-        font-size: 14px;
-    }
+    .floating-form h3 { color: #FFFADA; margin: 0 0 12px 0; text-align: center; }
 
     .form-actions {
         display: flex;
         justify-content: flex-end;
         gap: 10px;
-        margin-top: 15px;
+        margin-top: 14px;
     }
 
     .btn {
         border: none;
         border-radius: 8px;
-        padding: 10px 20px;
+        padding: 10px 18px;
         font-weight: 600;
         cursor: pointer;
     }
 
-    .btn-primary {
-        background: linear-gradient(135deg, #FFA719, #FFCD7B);
-        color: #2a2a2a;
-    }
+    .btn-primary { background: linear-gradient(135deg, #FFA719, #FFCD7B); color: #2a2a2a; }
+    .btn-secondary { background-color: #9D6DC2; color: #FFFADA; }
+    .btn:hover { transform: scale(1.03); transition: 0.12s; }
 
-    .btn-secondary {
-        background-color: #9D6DC2;
-        color: #FFFADA;
-    }
-
-    .btn:hover {
-        transform: scale(1.03);
-        transition: 0.2s;
-    }
-
-    @media (max-width: 600px) {
-        .section {
-            padding: 20px;
-        }
-        h2 {
-            font-size: 22px;
-        }
-        .floating-form {
-            width: 95%;
-        }
+    /* small screens: keep it responsive */
+    @media (max-width: 900px) {
+        :root{ --sidebar-width: 200px; }
+        .section { margin-left: calc(var(--sidebar-width) + 10px); width: calc(100% - var(--sidebar-width) - 30px); padding: 20px; }
+        h2 { font-size: 22px; }
     }
 </style>
 
 <div class="section">
     <div class="timestamp">{{ now|date:"h:i A T M j, Y" }}</div>
     <h2>TENANTS MANAGEMENT</h2>
-    <button class="add-btn" id="openFormBtn">+ Add New Tenant</button>
 
-    <div class="search-bar">
+    <div class="search-bar" style="margin-bottom:16px;">
         <input type="text" class="search-input" placeholder="Search tenants by name or unit...">
-        <select class="status-dropdown">
+        <select class="status-dropdown" style="width:220px;">
             <option>All Status</option>
             <option>Active</option>
             <option>Archived</option>
         </select>
+        <button class="add-btn" id="openFormBtn" style="margin-left:10px;">+ Add New Tenant</button>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+                <th style="width:40px">ID</th>
                 <th>Full Name</th>
                 <th>Unit</th>
                 <th>Phone</th>
@@ -246,46 +233,63 @@
 </div>
 
 <!-- Floating Overlay Form -->
-<div class="overlay" id="overlayForm">
-    <div class="floating-form">
+<div class="overlay" id="overlayForm" aria-hidden="true">
+    <div class="floating-form" role="dialog" aria-modal="true">
         <h3>Add New Tenant</h3>
         <form id="tenantForm" method="post" action="{% url 'tenant_create' %}">
             {% csrf_token %}
-            <label>First Name</label>
-            <input type="text" name="first_name" required>
-
-            <label>Middle Name</label>
-            <input type="text" name="middle_name">
-
-            <label>Last Name</label>
-            <input type="text" name="last_name" required>
-
-            <label>Sex</label>
-            <select name="sex" required>
-                <option value="M">Male</option>
-                <option value="F">Female</option>
-            </select>
-
-            <label>Date of Birth</label>
-            <input type="date" name="date_of_birth" required>
-
-            <label>Contact Number</label>
-            <input type="text" name="contact_number" required>
-
-            <label>Unit</label>
-            {{ form.unit }}
-
-            <label>Move-In Date</label>
-            <input type="date" name="move_in_date" required>
-
-            <label>Move-Out Date</label>
-            <input type="date" name="move_out_date">
-
-            <label>Status</label>
-            <select name="status" required>
-                <option value="active">Active</option>
-                <option value="archived">Archived</option>
-            </select>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div>
+                    <label style="color:#FFFADA; font-weight:600; display:block; margin-bottom:6px;">First Name</label>
+                    <input name="first_name" required style="width:100%; padding:8px; border-radius:6px; border:1px solid #ddd;">
+                </div>
+                <div>
+                    <label style="color:#FFFADA; font-weight:600; display:block; margin-bottom:6px;">Middle Name</label>
+                    <input name="middle_name" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ddd;">
+                </div>
+                <div>
+                    <label style="color:#FFFADA; font-weight:600; display:block; margin-bottom:6px;">Last Name</label>
+                    <input name="last_name" required style="width:100%; padding:8px; border-radius:6px; border:1px solid #ddd;">
+                </div>
+                <div>
+                    <label style="color:#FFFADA; font-weight:600; display:block; margin-bottom:6px;">Sex</label>
+                    <select name="sex" required style="width:100%; padding:8px; border-radius:6px; border:1px solid #ddd;">
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="color:#FFFADA; font-weight:600; display:block; margin-bottom:6px;">Date of Birth</label>
+                    <input type="date" name="date_of_birth" required style="width:100%; padding:8px; border-radius:6px; border:1px solid #ddd;">
+                </div>
+                <div>
+                    <label style="color:#FFFADA; font-weight:600; display:block; margin-bottom:6px;">Contact Number</label>
+                    <input name="contact_number" required style="width:100%; padding:8px; border-radius:6px; border:1px solid #ddd;">
+                </div>
+                <div style="grid-column:1 / -1;">
+                    <label style="color:#FFFADA; font-weight:600; display:block; margin-bottom:6px;">Original Address</label>
+                    <textarea name="original_address" rows="3" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ddd;"></textarea>
+                </div>
+                <div>
+                    <label style="color:#FFFADA; font-weight:600; display:block; margin-bottom:6px;">Unit</label>
+                    {{ form.unit }}
+                </div>
+                <div>
+                    <label style="color:#FFFADA; font-weight:600; display:block; margin-bottom:6px;">Move-In Date</label>
+                    <input type="date" name="move_in_date" required style="width:100%; padding:8px; border-radius:6px; border:1px solid #ddd;">
+                </div>
+                <div>
+                    <label style="color:#FFFADA; font-weight:600; display:block; margin-bottom:6px;">Move-Out Date</label>
+                    <input type="date" name="move_out_date" style="width:100%; padding:8px; border-radius:6px; border:1px solid #ddd;">
+                </div>
+                <div>
+                    <label style="color:#FFFADA; font-weight:600; display:block; margin-bottom:6px;">Status</label>
+                    <select name="status" required style="width:100%; padding:8px; border-radius:6px; border:1px solid #ddd;">
+                        <option value="active">Active</option>
+                        <option value="archived">Archived</option>
+                    </select>
+                </div>
+            </div>
 
             <div class="form-actions">
                 <button type="button" class="btn btn-secondary" id="closeFormBtn">Cancel</button>
@@ -299,15 +303,21 @@
     const overlay = document.getElementById('overlayForm');
     const openBtn = document.getElementById('openFormBtn');
     const closeBtn = document.getElementById('closeFormBtn');
+    const tenantForm = document.getElementById('tenantForm');
 
     openBtn.addEventListener('click', () => overlay.classList.add('active'));
     closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
-    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('active'); });
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
 
-    // ✅ normal submit handled by Django view
-    const tenantForm = document.getElementById('tenantForm');
-    tenantForm.addEventListener('submit', function() {
-        overlay.classList.remove('active');
+    tenantForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const response = await fetch(this.action, { method: 'POST', body: formData });
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert("Error saving tenant. Check the form and try again.");
+        }
     });
 </script>
 {% endblock %}

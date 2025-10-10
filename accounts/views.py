@@ -8,8 +8,6 @@ from django.db.models import Q
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth import logout
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 
 from .models import (
@@ -38,7 +36,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect("dashboard")
+            return redirect("home")
         else:
             return render(request, "accounts/login.html", {
                 "form": form,
@@ -55,7 +53,7 @@ def dashboard(request):
     units = Unit.objects.select_related("apartment").all()
     payments = Payment.objects.select_related("unit").order_by("-id")[:5]
     bills = Bill.objects.select_related("unit").order_by("-month")[:5]
-    charges = OtherCharges.objects.select_related("rent").order_by("-id")[:5]
+    charges = OtherCharges.objects.select_related("bill").order_by("-id")[:5]
 
     stats = {
         "tenant_count": tenants.count(),
@@ -73,7 +71,7 @@ def dashboard(request):
         "charges": charges,
         "stats": stats,
     }
-    return render(request, "accounts/dashboard.html", context)
+    return render(request, "accounts/home.html", context)
 
 
 @login_required
@@ -171,6 +169,7 @@ def unit_delete(request, pk):
 
 
 # ---------------------- TENANTS CRUD ----------------------
+
 @login_required
 def tenant_create(request):
     form = TenantForm(request.POST or None)
@@ -236,46 +235,23 @@ def bill_list(request):
 
 @login_required
 def bill_create(request):
-    form = BillForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        bill = form.save(commit=False)
-        bill.room_price = bill.unit.price
-        bill.save()
-        return redirect("bill_list")
-    return render(request, "accounts/bill_form.html", {"form": form})
-
-
-@login_required
-def payment_list(request):
-    payments = Payment.objects.all().order_by('-date_of_payment')
-    return render(request, "accounts/payment_list.html", {"payments": payments})
-
-
-@login_required
-def payment_create(request):
     if request.method == "POST":
-        form = PaymentForm(request.POST)
+        form = BillForm(request.POST)
         if form.is_valid():
-            payment = form.save(commit=False)
-
-            # Optional logic: check latest bill and set rent status
-            if payment.unit and hasattr(payment.unit, "bills") and payment.unit.bills.exists():
-                latest_bill = payment.unit.bills.latest("month")
-                payment.rent_status = "Paid" if payment.amount >= latest_bill.total_rent else "Not Paid"
-
-            payment.save()
-            return redirect("payment_list")
+            bill = form.save(commit=False)
+            bill.room_price = bill.unit.price  # ✅ Keep your logic
+            bill.save()
+            return redirect("bill_list")
     else:
-        form = PaymentForm()
+        form = BillForm()
 
-    return render(request, "accounts/payment_form.html", {"form": form})
+    return render(request, "accounts/bill_form.html", {"form": form})
 
 
 # ------------------------------------------------------------------
 # PAYMENT VIEWS
 # ------------------------------------------------------------------
 
-
 @login_required
 def payment_list(request):
     payments = Payment.objects.all().order_by('-date_of_payment')
@@ -284,32 +260,27 @@ def payment_list(request):
 
 @login_required
 def payment_create(request):
-    # ✅ Ensure PaymentMethod has data so dropdown won't be empty
-    if not PaymentMethod.objects.exists():
-        PaymentMethod.objects.bulk_create([
-            PaymentMethod(name="Cash"),
-            PaymentMethod(name="Gcash"),
-            PaymentMethod(name="Bank Transfer"),
-        ])
-
-    if request.method == "POST":
+    if request.method == 'POST':
         form = PaymentForm(request.POST)
         if form.is_valid():
             payment = form.save(commit=False)
 
-            # Optional: Automatically set rent status if you have logic
-            if payment.unit and hasattr(payment.unit, 'bills') and payment.unit.bills.exists():
-                latest_bill = payment.unit.bills.latest("month")
-                payment.rent_status = (
-                    "Paid" if payment.amount >= latest_bill.total_rent else "Not Paid"
-                )
+            # optional: handle bill relationship safely
+            bill_id = request.POST.get('bill')
+            if bill_id:
+                try:
+                    bill = Bill.objects.get(pk=bill_id)
+                    payment.bill = bill
+                except Bill.DoesNotExist:
+                    pass
 
             payment.save()
-            return redirect("payment_list")
+            return redirect('payment_list')
     else:
         form = PaymentForm()
 
-    return render(request, "accounts/payment_form.html", {"form": form})
+    bills = Bill.objects.all()
+    return render(request, 'accounts/payment_form.html', {'form': form, 'bills': bills})
 
 
 @login_required
@@ -343,7 +314,7 @@ def payment_delete(request, pk):
 
 
 # ------------------------------------------------------------------
-# PAYMENT METHOD VIEWS (optional but needed if you’re using payment_method_form.html)
+# PAYMENT METHOD VIEWS
 # ------------------------------------------------------------------
 
 @login_required
@@ -359,28 +330,10 @@ def payment_method_create(request):
 
 
 # ---------------------- OTHER CHARGES ----------------------
-# ---------------------- OTHER CHARGES ----------------------
 
 @login_required
 def other_charges_list(request):
-    from .models import OtherCharges
     charges = OtherCharges.objects.select_related("bill").all()
-    return render(request, "accounts/other_charges_list.html", {"charges": charges})
-
-
-@login_required
-def other_charges_create(request):
-    from .forms import OtherChargesForm
-    form = OtherChargesForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        return redirect("other_charges_list")
-    return render(request, "accounts/other_charges_form.html", {"form": form})
-
-
-@login_required
-def other_charges_list(request):
-    charges = OtherCharges.objects.select_related("rent").all()
     return render(request, "accounts/other_charges_list.html", {"charges": charges})
 
 

@@ -47,7 +47,7 @@
         font-size: 14px;
     }
 
-    select, input[type="text"], input[type="number"], input[type="date"], textarea {
+    input, select, textarea {
         width: 100%;
         padding: 10px 12px;
         border: 1px solid #E9ECEF;
@@ -70,7 +70,6 @@
         justify-content: flex-end;
         gap: 15px;
         margin-top: 30px;
-        flex-wrap: wrap;
     }
 
     .btn {
@@ -103,70 +102,49 @@
     .btn-secondary:hover {
         background-color: #8F56C8;
     }
-
-    @media (max-width: 600px) {
-        .page-container {
-            padding: 25px;
-        }
-        .page-title {
-            font-size: 24px;
-        }
-        form {
-            grid-template-columns: 1fr;
-        }
-    }
 </style>
 
 <div class="page-container">
     <h2 class="page-title">
-        {% if form.instance.pk %}Edit Payment{% else %}Add New Payment{% endif %}
+        {% if form.instance.pk %}Edit Payment{% else %}Record New Payment{% endif %}
     </h2>
-    <p class="page-subtitle">Fill in the payment details below.</p>
+    <p class="page-subtitle">Enter payment details below.</p>
 
     <form method="POST">
         {% csrf_token %}
-        {{ form.non_field_errors }}
 
         <div>
-            <label>Tenant</label>
+            <label for="tenant">Tenant</label>
             {{ form.tenant }}
         </div>
 
         <div>
-            <label>Unit</label>
+            <label for="unit">Unit</label>
             {{ form.unit }}
         </div>
 
         <div>
-            <label>Date of Payment</label>
-            <input 
-                type="date" 
-                name="date_of_payment" 
-                value="{{ form.date_of_payment.value|default_if_none:'' }}" 
-                required>
+            <label for="bill">Bill</label>
+            {{ form.bill }}
         </div>
 
         <div>
-            <label>Amount (₱)</label>
+            <label for="date_of_payment">Payment Date</label>
+            {{ form.date_of_payment }}
+        </div>
+
+        <div>
+            <label for="amount">Amount</label>
             {{ form.amount }}
         </div>
 
         <div>
-            <label>Payment Method</label>
+            <label for="method">Payment Method</label>
             {{ form.method }}
         </div>
 
-        <div>
-            <label>Status</label>
-            <select name="status" required>
-                <option value="" disabled {% if not form.instance.status %}selected{% endif %}>-- Select Status --</option>
-                <option value="Paid" {% if form.instance.status == "Paid" %}selected{% endif %}>Paid</option>
-                <option value="Not Paid" {% if form.instance.status == "Not Paid" %}selected{% endif %}>Not Paid</option>
-            </select>
-        </div>
-
         <div style="grid-column: 1 / -1;">
-            <label>Remarks</label>
+            <label for="remarks">Remarks</label>
             {{ form.remarks }}
         </div>
 
