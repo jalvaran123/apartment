@@ -87,6 +87,14 @@ urlpatterns = [
     path('other_charges/create/', views.other_charges_create,
          name='other_charges_create'),
 
+
+    path('other-charges/delete/<int:pk>/',
+         views.other_charges_delete, name='other_charges_delete'),
+
+    # -------------------------
+    # Offline Sync
+    # -------------------------
+    path('apartments/sync/', views.sync_apartment, name='sync_apartment'),
     path('logout/', views.logout_view, name='logout'),
 
 

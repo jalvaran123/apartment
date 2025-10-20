@@ -1,10 +1,10 @@
 {
-  "name": "Apartment Management",
-  "short_name": "Apartment App",
-  "start_url": "/accounts/login/",
+  "name": "Apartment Manager",
+  "short_name": "Apartment",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#1c2526",
-  "theme_color": "#00b7eb",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
   "icons": [
     {
       "src": "/static/icon-192x192.png",

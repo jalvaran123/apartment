@@ -1,8 +1,6 @@
-# apartment/urls.py
 from django.contrib import admin
 from django.urls import path, include
 from accounts import views
-# <-- import built-in auth views
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -19,4 +17,8 @@ urlpatterns = [
 
     # ✅ Logout route (so {% url 'logout' %} works)
     path('logout/', views.logout_view, name='logout'),
+
+    # ✅ API routes
+    path('api/', include('api.urls')),
+
 ]

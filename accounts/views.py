@@ -6,9 +6,11 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
 from django.contrib.auth import logout
 from django.http import JsonResponse
+import json
 
 from .models import (
     Apartment, Unit, Tenant, Visitor, Payment, Bill, PaymentMethod, OtherCharges
@@ -109,12 +111,34 @@ def apartment_list(request):
 
 
 @login_required
+@csrf_exempt
 def apartment_create(request):
-    form = ApartmentForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        form.save()
+    if request.method == "POST":
+        # if sync sends JSON (from IndexedDB)
+        if request.headers.get("Content-Type") == "application/json":
+            try:
+                data = json.loads(request.body)
+            except json.JSONDecodeError:
+                return JsonResponse({"error": "Invalid JSON"}, status=400)
+        else:
+            data = request.POST
+
+        Apartment.objects.create(
+            name=data.get("name"),
+            address=data.get("address"),
+            number_of_units=data.get("number_of_units"),
+            number_of_tenants=data.get("number_of_tenants"),
+            status=data.get("status", "active")
+        )
+
+        # If it’s a JSON sync, respond with JSON success
+        if request.headers.get("Content-Type") == "application/json":
+            return JsonResponse({"success": True})
+
+        # Otherwise normal redirect
         return redirect("apartment_list")
-    return render(request, "accounts/apartment_form.html", {"form": form})
+
+    return render(request, "accounts/apartment_form.html", {"form": ApartmentForm()})
 
 
 @login_required
@@ -361,6 +385,36 @@ def other_charges_delete(request, pk):
     charge = get_object_or_404(OtherCharges, pk=pk)
     charge.delete()
     return redirect("other_charges_list")
+
+# ---------------------- OFFLINE SYNC ENDPOINT ----------------------
+
+
+@csrf_exempt
+def sync_apartment(request):
+    """
+    Called automatically when user goes online.
+    Accepts JSON from IndexedDB and saves it to the PostgreSQL DB (Supabase).
+    """
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+
+            # create Apartment record
+            Apartment.objects.create(
+                name=data.get("name", "Unnamed Apartment"),
+                address=data.get("address", ""),
+                number_of_units=data.get("number_of_units") or 0,
+                number_of_tenants=data.get("number_of_tenants") or 0,
+                status=data.get("status", "active")
+            )
+
+            return JsonResponse({"success": True, "message": "Synced successfully!"}, status=201)
+
+        except Exception as e:
+            print("❌ Sync error:", e)
+            return JsonResponse({"error": str(e)}, status=400)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
 
 
 # ---------------------- RENT REMINDERS ----------------------

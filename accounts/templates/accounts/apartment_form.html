@@ -1,4 +1,5 @@
 {% extends "accounts/base.html" %}
+{% load static %}
 {% block content %}
 <style>
     body {
@@ -119,7 +120,8 @@
     </h2>
     <p class="page-subtitle">Fill in the apartment details below.</p>
 
-    <form method="POST">
+    <form id="apartmentForm" method="POST">
+
         {% csrf_token %}
 
         <div>
@@ -156,4 +158,58 @@
         </div>
     </form>
 </div>
+<script src="{% static 'js/db.js' %}"></script>
+<script>
+const form = document.getElementById("apartmentForm");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const apartment = {
+        name: form.querySelector('[name="name"]').value,
+        address: form.querySelector('[name="address"]').value,
+        number_of_units: form.querySelector('[name="number_of_units"]').value,
+        number_of_tenants: form.querySelector('[name="number_of_tenants"]').value,
+        status: form.querySelector('[name="status"]').value,
+    };
+
+    if (navigator.onLine) {
+        // ✅ Send to server when online
+        try {
+            const response = await fetch("/accounts/apartment/create/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(apartment)
+            });
+
+            if (response.ok) {
+                alert("🏢 Apartment saved online!");
+                window.location.href = "/accounts/apartments/";
+            } else {
+                throw new Error("Server error");
+            }
+        } catch (err) {
+            console.error("Error saving online:", err);
+            alert("⚠️ Failed to save online. Saving locally instead.");
+            await savePending(apartment);
+        }
+    } else {
+        // 📴 Offline: save locally
+        console.log("📴 Offline, saving locally");
+        await savePending(apartment);
+        alert("💾 Saved offline! Will sync once you're online.");
+    }
+});
+
+// 🔁 Sync when back online
+window.addEventListener("online", async () => {
+    console.log("🌐 Back online — syncing pending apartments...");
+    await syncWhenOnline();
+});
+</script>
+
+
 {% endblock %}

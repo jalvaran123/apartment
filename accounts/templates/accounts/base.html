@@ -231,8 +231,23 @@
                 toggle.addEventListener('click', function(){ sidebar.classList.toggle('open'); });
             }
         })();
-    </script>
+       </script>
+<!-- load db.js first -->
+
+
+<!-- register SW served as /static/sw.js -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register("{% static 'sw.js' %}")
+      .then(reg => console.log('Service Worker registered ✅', reg.scope))
+      .catch(err => console.error('SW registration failed ❌', err));
+  });
+}
+</script>
 
     {% block body_extra %}{% endblock %}
+
 </body>
 </html>
+

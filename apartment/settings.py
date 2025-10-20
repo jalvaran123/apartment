@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import dj_database_url
+import socket
 
 # -------------------------------
 # Base Directory
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
+    'rest_framework',
 ]
 
 # -------------------------------
@@ -94,13 +96,34 @@ WSGI_APPLICATION = 'apartment.wsgi.application'
 # -------------------------------
 # Database (Supabase PostgreSQL with Render fallback)
 # -------------------------------
-DATABASES = {
-    'default': dj_database_url.config(
-        default="postgresql://postgres.tvttwbifawwudymwnjpg:Cookie12345@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres",
-        conn_max_age=600,
-        ssl_require=not DEBUG  # require SSL only in production
-    )
-}
+# -------------------------------
+# Database (Supabase online / SQLite offline)
+# -------------------------------
+
+try:
+    # Try to resolve Supabase host (means internet is working)
+    socket.gethostbyname('aws-1-ap-southeast-1.pooler.supabase.com')
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'HOST': 'aws-1-ap-southeast-1.pooler.supabase.com',
+            'NAME': 'postgres',
+            'USER': 'postgres.tvttwbifawwudymwnjpg',
+            'PASSWORD': 'Cookie12345',
+            'PORT': '5432',
+        }
+    }
+    print("✅ Using Supabase PostgreSQL (online mode)")
+except socket.gaierror:
+    # If offline or Supabase unreachable, fallback to SQLite
+    print("⚠️ Offline mode: using SQLite fallback")
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'offline.sqlite3',
+        }
+    }
+
 
 # -------------------------------
 # Password Validators
@@ -161,3 +184,12 @@ else:
 # Default Primary Key Field Type
 # -------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# -------------------------------
+# Django REST Framework settings
+# -------------------------------
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
