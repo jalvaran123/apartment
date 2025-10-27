@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}Apartment Management{% endblock %}</title>
 
+<<<<<<< HEAD
     <!-- ✅ PWA Requirements Added -->
     <link rel="manifest" href="{% static 'manifest.json' %}">
     <meta name="theme-color" content="#00b7eb">
@@ -13,9 +14,17 @@
     <link rel="apple-touch-icon" href="{% static 'icon-192x192.png' %}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
+=======
+    <!-- PWA Essentials -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="description" content="Offline-ready Apartment Management System">
+    <link rel="apple-touch-icon" href="{% static 'icon-192x192.png' %}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'icon-192x192.png' %}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'icon-512x512.png' %}">
+>>>>>>> 1b62d8d (FIX PWA)
 
     <style>
-        /* --- layout + colors --- */
         :root{
             --sidebar-width: 220px;
             --sidebar-bg1: #2d1b47;
@@ -37,8 +46,6 @@
             color:var(--muted-white);
             overflow:hidden;
         }
-
-        /* --- Sidebar --- */
         .sidebar{
             width:var(--sidebar-width);
             background: linear-gradient(180deg,var(--sidebar-bg1) 0%, var(--sidebar-bg2) 100%);
@@ -89,8 +96,6 @@
             padding: 12px 18px;
             margin-top: auto;
         }
-
-        /* --- Main content area --- */
         .main{
             flex:1;
             overflow:auto;
@@ -101,7 +106,6 @@
             color: rgba(255,255,255,0.72);
             font-size:13px;
         }
-
         .notice-card{
             background: var(--card-bg);
             border-radius:10px;
@@ -123,15 +127,12 @@
             border-radius:6px;
             color: white;
         }
-
-        /* small screens */
         @media (max-width:880px){
             .sidebar{ position: fixed; left: 0; top: 0; bottom: 0; z-index: 999; transform: translateX(-100%); transition: transform .22s ease;}
             .sidebar.open{ transform: translateX(0); }
             .main{ padding:12px; margin-left: 0;}
             .menu-toggle{ display:inline-block; margin-bottom:10px; background:transparent; border: 0; color: white; padding:8px 10px; font-weight:600;}
         }
-
     </style>
 
     {% block head_extra %}{% endblock %}
@@ -146,19 +147,14 @@
         <nav class="nav-menu" aria-label="Main navigation">
             <a class="nav-link {% if url_name == 'apartment_list' or url_name == 'apartment_create' or url_name == 'apartment_update' %}active{% endif %}"
                href="{% url 'apartment_list' %}">Apartments</a>
-
             <a class="nav-link {% if url_name == 'unit_list' or url_name == 'unit_create' or url_name == 'unit_update' %}active{% endif %}"
                href="{% url 'unit_list' %}">Units</a>
-
             <a class="nav-link {% if url_name == 'tenants' or url_name == 'tenant_create' or url_name == 'tenant_update' %}active{% endif %}"
                href="{% url 'tenants' %}">Tenants</a>
-
             <a class="nav-link {% if url_name == 'payment_list' or url_name == 'payment_create' or url_name == 'payment_update' %}active{% endif %}"
                href="{% url 'payment_list' %}">Payments</a>
-
             <a class="nav-link {% if url_name == 'bill_list' or url_name == 'bill_create' %}active{% endif %}"
                href="{% url 'bill_list' %}">Bills</a>
-
             <a class="nav-link {% if url_name == 'other_charges_list' or url_name == 'other_charges_create' %}active{% endif %}"
                href="{% url 'other_charges_list' %}">Other Charges</a>
 
@@ -170,7 +166,6 @@
     </aside>
 
     <main class="main">
-        <!-- mobile menu toggle -->
         <button class="menu-toggle" id="menuToggle" style="display:none">☰ Menu</button>
 
         <div class="top-row">
@@ -190,7 +185,10 @@
         (function(){
             try{
                 if(document.querySelector('.nav-link.active')) return;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1b62d8d (FIX PWA)
                 var path = location.pathname.replace(/\/+$/,'');
                 var mappings = {
                     '/accounts/apartments': 'Apartments',
@@ -213,7 +211,10 @@
                     });
                 }
             }catch(e){}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1b62d8d (FIX PWA)
             var sidebar = document.getElementById('appSidebar');
             var toggle = document.getElementById('menuToggle');
             function setToggleVisibility(){
@@ -232,11 +233,19 @@
         })();
     </script>
 
+<<<<<<< HEAD
     <!-- ✅ Service Worker Registration (kept same filepath: /static/sw.js) -->
     <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register("{% static 'sw.js' %}")
+=======
+    <!-- Register Service Worker -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register("{% static 'service-worker.js' %}")
+>>>>>>> 1b62d8d (FIX PWA)
             .then(reg => console.log('Service Worker registered ✅', reg.scope))
             .catch(err => console.error('SW registration failed ❌', err));
         });
@@ -244,6 +253,5 @@
     </script>
 
     {% block body_extra %}{% endblock %}
-
 </body>
 </html>
