@@ -23,7 +23,6 @@ _local_dev_env = os.environ.get('DJANGO_LOCAL_DEV')
 if _local_dev_env is not None:
     DEBUG = _local_dev_env.lower() == 'true'
 else:
-    # Render sets RENDER=True automatically
     DEBUG = not bool(os.environ.get('RENDER'))
 
 # -------------------------------
@@ -54,8 +53,7 @@ INSTALLED_APPS = [
 # -------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # must be just after SecurityMiddleware
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # ✅ Static PWA support
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -75,7 +73,7 @@ ROOT_URLCONF = 'apartment.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # your global templates directory
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -94,14 +92,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'apartment.wsgi.application'
 
 # -------------------------------
-# Database (Supabase PostgreSQL with Render fallback)
-# -------------------------------
-# -------------------------------
 # Database (Supabase online / SQLite offline)
 # -------------------------------
-
 try:
-    # Try to resolve Supabase host (means internet is working)
     socket.gethostbyname('aws-1-ap-southeast-1.pooler.supabase.com')
     DATABASES = {
         'default': {
@@ -115,7 +108,6 @@ try:
     }
     print("✅ Using Supabase PostgreSQL (online mode)")
 except socket.gaierror:
-    # If offline or Supabase unreachable, fallback to SQLite
     print("⚠️ Offline mode: using SQLite fallback")
     DATABASES = {
         'default': {
@@ -123,7 +115,6 @@ except socket.gaierror:
             'NAME': BASE_DIR / 'offline.sqlite3',
         }
     }
-
 
 # -------------------------------
 # Password Validators
@@ -147,15 +138,21 @@ USE_TZ = True
 # Static & Media Files
 # -------------------------------
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # keep your local static folder
-# where collectstatic will put all static assets
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+    BASE_DIR / 'accounts/static',  # ✅ Added so PWA files are collected
+]
+
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# ✅ WhiteNoise storage backend for caching & compression
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# ✅ Offline support for PWA
+OFFLINE_URL = '/offline.html'
 
 # -------------------------------
 # Authentication Redirects
