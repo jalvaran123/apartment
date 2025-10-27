@@ -1,14 +1,14 @@
 const CACHE_NAME = 'apartment-cache-v1';
-const OFFLINE_URL = '/offline.html';
+const OFFLINE_URL = '/offline/';
 
-// Update with your actual asset paths
+// Corrected asset paths (use Django static paths)
 const ASSETS_TO_CACHE = [
     '/',
-    '/offline.html',
+    '/offline/',
     '/static/css/style.css',
     '/static/js/main.js',
-    '/static/icon-192x192.png',
-    '/static/icon-512x512.png',
+    '/static/icons/icon-192x192.png',
+    '/static/icons/icon-512x512.png',
     '/static/manifest.json'
 ];
 
@@ -54,7 +54,11 @@ self.addEventListener('fetch', event => {
                         return networkResponse;
                     });
                 })
-                .catch(() => caches.match(OFFLINE_URL));
+                .catch(() => {
+                    if (event.request.mode === 'navigate') {
+                        return caches.match(OFFLINE_URL);
+                    }
+                });
         })
     );
 });

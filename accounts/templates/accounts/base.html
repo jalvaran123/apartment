@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}Apartment Management{% endblock %}</title>
 
-<<<<<<< HEAD
     <!-- ✅ PWA Requirements Added -->
     <link rel="manifest" href="{% static 'manifest.json' %}">
     <meta name="theme-color" content="#00b7eb">
@@ -14,15 +13,6 @@
     <link rel="apple-touch-icon" href="{% static 'icon-192x192.png' %}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-=======
-    <!-- PWA Essentials -->
-    <link rel="manifest" href="{% static 'manifest.json' %}">
-    <meta name="theme-color" content="#3b82f6">
-    <meta name="description" content="Offline-ready Apartment Management System">
-    <link rel="apple-touch-icon" href="{% static 'icon-192x192.png' %}">
-    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'icon-192x192.png' %}">
-    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'icon-512x512.png' %}">
->>>>>>> 1b62d8d (FIX PWA)
 
     <style>
         :root{
@@ -185,10 +175,6 @@
         (function(){
             try{
                 if(document.querySelector('.nav-link.active')) return;
-<<<<<<< HEAD
-
-=======
->>>>>>> 1b62d8d (FIX PWA)
                 var path = location.pathname.replace(/\/+$/,'');
                 var mappings = {
                     '/accounts/apartments': 'Apartments',
@@ -211,10 +197,6 @@
                     });
                 }
             }catch(e){}
-<<<<<<< HEAD
-
-=======
->>>>>>> 1b62d8d (FIX PWA)
             var sidebar = document.getElementById('appSidebar');
             var toggle = document.getElementById('menuToggle');
             function setToggleVisibility(){
@@ -233,19 +215,11 @@
         })();
     </script>
 
-<<<<<<< HEAD
     <!-- ✅ Service Worker Registration (kept same filepath: /static/sw.js) -->
     <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register("{% static 'sw.js' %}")
-=======
-    <!-- Register Service Worker -->
-    <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register("{% static 'service-worker.js' %}")
->>>>>>> 1b62d8d (FIX PWA)
             .then(reg => console.log('Service Worker registered ✅', reg.scope))
             .catch(err => console.error('SW registration failed ❌', err));
         });
