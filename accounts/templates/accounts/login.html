@@ -6,6 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page with Slideshow</title>
     <link rel="stylesheet" href="{% static 'sia/styles.css' %}">
+
+    <!-- PWA Requirements -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#3b82f6">
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register("{% static 'service-worker.js' %}")
+          .then(reg => console.log("Service Worker registered:", reg.scope))
+          .catch(err => console.log("Service Worker registration failed:", err));
+        });
+      }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -61,7 +75,6 @@
                         {{ form.password }}
                     </div>
                     <div class="form-options">
-                   
                     </div>
                     <button type="submit" class="login-btn">Log In</button>
                 </form>
