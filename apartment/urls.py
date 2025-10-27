@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
 from accounts import views
-from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.staticfiles.views import serve as static_serve  # ✅ Added for PWA
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -40,6 +40,16 @@ urlpatterns = [
     ), name='serviceworker'),
 ]
 
+# ✅ Serve PWA Static Files Correctly
+urlpatterns += [
+    path('manifest.json', static_serve, {'path': 'manifest.json'}),
+    path('serviceworker.js', static_serve, {'path': 'serviceworker.js'}),
+    path('offline.html', static_serve, {'path': 'offline.html'}),
+]
+
+# ✅ Static files during development
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL,
-                          document_root=settings.STATIC_ROOT)
+    urlpatterns += static(
+        settings.STATIC_URL,
+        document_root=settings.STATIC_ROOT
+    )
