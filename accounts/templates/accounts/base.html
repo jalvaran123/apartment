@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}Apartment Management{% endblock %}</title>
 
+    <!-- ✅ PWA Requirements Added -->
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#00b7eb">
+    <link rel="icon" href="{% static 'icon-192x192.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'icon-192x192.png' %}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <style>
         /* --- layout + colors --- */
         :root{
@@ -134,7 +142,6 @@
             <h1>APARTMENT MANAGEMENT</h1>
         </div>
 
-        {% comment %} determine active nav server-side if request is available {% endcomment %}
         {% with url_name=request.resolver_match.url_name %}
         <nav class="nav-menu" aria-label="Main navigation">
             <a class="nav-link {% if url_name == 'apartment_list' or url_name == 'apartment_create' or url_name == 'apartment_update' %}active{% endif %}"
@@ -172,7 +179,6 @@
         </div>
 
         {% block content %}
-        <!-- default content — child templates override -->
         <div class="notice-card">
             <div class="notice-title">NOTICE</div>
             <div class="notice-item">No notices to show.</div>
@@ -181,14 +187,11 @@
     </main>
 
     <script>
-        // --- JS fallback for active nav (if request isn't available in template) ---
         (function(){
             try{
-                // If server-side class active exists, no need for fallback.
                 if(document.querySelector('.nav-link.active')) return;
 
-                var path = location.pathname.replace(/\/+$/,''); // trim trailing slash
-                // map simple URL path fragments to nav links
+                var path = location.pathname.replace(/\/+$/,'');
                 var mappings = {
                     '/accounts/apartments': 'Apartments',
                     '/accounts/units': 'Units',
@@ -209,11 +212,8 @@
                         }
                     });
                 }
-            }catch(e){
-                // silent
-            }
+            }catch(e){}
 
-            // mobile toggle
             var sidebar = document.getElementById('appSidebar');
             var toggle = document.getElementById('menuToggle');
             function setToggleVisibility(){
@@ -221,7 +221,6 @@
                     toggle.style.display = 'inline-block';
                 } else {
                     toggle.style.display = 'none';
-                    // ensure sidebar visible on desktop
                     sidebar.classList.remove('open');
                 }
             }
@@ -231,23 +230,20 @@
                 toggle.addEventListener('click', function(){ sidebar.classList.toggle('open'); });
             }
         })();
-       </script>
-<!-- load db.js first -->
+    </script>
 
-
-<!-- register SW served as /static/sw.js -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register("{% static 'sw.js' %}")
-      .then(reg => console.log('Service Worker registered ✅', reg.scope))
-      .catch(err => console.error('SW registration failed ❌', err));
-  });
-}
-</script>
+    <!-- ✅ Service Worker Registration (kept same filepath: /static/sw.js) -->
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register("{% static 'sw.js' %}")
+            .then(reg => console.log('Service Worker registered ✅', reg.scope))
+            .catch(err => console.error('SW registration failed ❌', err));
+        });
+    }
+    </script>
 
     {% block body_extra %}{% endblock %}
 
 </body>
 </html>
-
