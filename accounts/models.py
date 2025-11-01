@@ -186,3 +186,28 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment ₱{self.amount} by {self.tenant} on {self.date_of_payment}"
+
+
+# ---------------------- PASSWORD RESET CODE ----------------------
+class PasswordResetCode(models.Model):
+    email = models.EmailField()
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    used = models.BooleanField(default=False)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['email', 'code']),
+            models.Index(fields=['expires_at']),
+        ]
+
+    def __str__(self):
+        return f"Reset code for {self.email} - {self.code}"
+
+    def is_valid(self):
+        """Check if code is still valid"""
+        from django.utils import timezone
+        return not self.used and timezone.now() < self.expires_at

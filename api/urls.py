@@ -2,6 +2,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # Status endpoint for health checks
+    path('status/', views.get_status, name='get_status'),
+    
     # All data
     path('all/', views.get_all_data, name='get_all_data'),
 

@@ -9,11 +9,17 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
 from django.contrib.auth import logout
+from django.contrib.auth.models import User
 from django.http import JsonResponse
+from django.core.mail import send_mail
+from django.conf import settings
+from django.views.decorators.http import require_http_methods
 import json
+import random
+import hashlib
 
 from .models import (
-    Apartment, Unit, Tenant, Visitor, Payment, Bill, PaymentMethod, OtherCharges
+    Apartment, Unit, Tenant, Visitor, Payment, Bill, PaymentMethod, OtherCharges, PasswordResetCode
 )
 from .forms import (
     ApartmentForm, UnitForm, TenantForm,
@@ -163,7 +169,8 @@ def apartment_delete(request, pk):
 @login_required
 def unit_list(request):
     units = Unit.objects.all()
-    return render(request, "accounts/unit_list.html", {"units": units})
+    form = UnitForm()
+    return render(request, "accounts/unit_list.html", {"units": units, "form": form})
 
 
 @login_required
@@ -254,7 +261,8 @@ def visitor_create(request):
 @login_required
 def bill_list(request):
     bills = Bill.objects.select_related("unit").all()
-    return render(request, "accounts/bill_list.html", {"bills": bills})
+    form = BillForm()
+    return render(request, "accounts/bill_list.html", {"bills": bills, "form": form})
 
 
 @login_required
@@ -279,7 +287,8 @@ def bill_create(request):
 @login_required
 def payment_list(request):
     payments = Payment.objects.all().order_by('-date_of_payment')
-    return render(request, "accounts/payment_list.html", {"payments": payments})
+    form = PaymentForm()
+    return render(request, "accounts/payment_list.html", {"payments": payments, "form": form})
 
 
 @login_required
@@ -358,7 +367,8 @@ def payment_method_create(request):
 @login_required
 def other_charges_list(request):
     charges = OtherCharges.objects.select_related("bill").all()
-    return render(request, "accounts/other_charges_list.html", {"charges": charges})
+    form = OtherChargesForm()
+    return render(request, "accounts/other_charges_list.html", {"charges": charges, "form": form})
 
 
 @login_required
@@ -428,3 +438,131 @@ def rent_reminders(request):
     overdue_bills = Bill.objects.filter(
         month__lte=due_date).exclude(unit_id__in=paid_unit_ids)
     return render(request, "accounts/rent_reminders.html", {"overdue_bills": overdue_bills})
+
+# ---------------------- PASSWORD RESET ----------------------
+
+def get_client_ip(request):
+    """Get client IP address"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+def check_rate_limit(ip_address):
+    """Check if IP has exceeded rate limit for password reset"""
+    from django.conf import settings
+    window_start = timezone.now() - timedelta(seconds=settings.PASSWORD_RESET_RATE_WINDOW)
+    
+    recent_requests = PasswordResetCode.objects.filter(
+        ip_address=ip_address,
+        created_at__gte=window_start
+    ).count()
+    
+    return recent_requests < settings.PASSWORD_RESET_RATE_LIMIT
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def request_password_reset(request):
+    """
+    Endpoint: /auth/request-reset/
+    Accepts POST with JSON: {"email": "user@example.com"}
+    Returns JSON: {"status": "ok"} or {"status": "error", "message": "..."}
+    """
+    try:
+        # Parse JSON request
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+        else:
+            data = request.POST
+        
+        email = data.get('email', '').strip().lower()
+        
+        if not email:
+            return JsonResponse({"status": "error", "message": "Email is required"}, status=400)
+        
+        # Validate email format
+        if '@' not in email or '.' not in email:
+            return JsonResponse({"status": "error", "message": "Invalid email format"}, status=400)
+        
+        # Get client IP for rate limiting
+        ip_address = get_client_ip(request)
+        
+        # Check rate limit
+        if not check_rate_limit(ip_address):
+            return JsonResponse({
+                "status": "error",
+                "message": "Too many reset requests. Please try again later."
+            }, status=429)
+        
+        # Check if user exists (for security, we don't reveal if email exists)
+        # Always return success to prevent email enumeration
+        user_exists = User.objects.filter(email=email).exists()
+        
+        # Generate 6-digit code
+        code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        
+        # Set expiry to 15 minutes from now
+        expires_at = timezone.now() + timedelta(minutes=15)
+        
+        # Invalidate any existing codes for this email
+        PasswordResetCode.objects.filter(email=email, used=False).update(used=True)
+        
+        # Create new reset code
+        reset_code = PasswordResetCode.objects.create(
+            email=email,
+            code=code,
+            expires_at=expires_at,
+            ip_address=ip_address
+        )
+        
+        # Only send email if user exists
+        if user_exists:
+            # Send email with reset code
+            subject = "Password Reset Code - Monterde Apartment"
+            message = f"""Hello,
+
+You have requested to reset your password for your Monterde Apartment account.
+
+Your password reset code is: {code}
+
+This code will expire in 15 minutes.
+
+If you didn't request this password reset, please ignore this email.
+
+Best regards,
+Monterde Apartment Team"""
+            
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+                print(f"[OK] Password reset email sent to {email} with code {code}")
+            except Exception as e:
+                # Log error for debugging
+                error_msg = str(e)
+                print(f"[ERROR] Email sending failed for {email}: {error_msg}")
+                # Still return success to prevent email enumeration
+                return JsonResponse({"status": "ok"})
+        
+        # Always return success (security: don't reveal if email exists)
+        return JsonResponse({"status": "ok"})
+        
+    except json.JSONDecodeError:
+        return JsonResponse({"status": "error", "message": "Invalid JSON"}, status=400)
+    except Exception as e:
+        # Log error but return generic message
+        print(f"Password reset error: {str(e)}")
+        return JsonResponse({"status": "error", "message": "An error occurred. Please try again."}, status=500)
+
+
+def forgot_password_view(request):
+    """Render the forgot password page"""
+    return render(request, "accounts/forgot_password.html")

@@ -8,8 +8,11 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Root login
-    path('', views.login_view, name='login'),
+    # Root landing page
+    path('', views.index, name='index'),
+
+    # Login page
+    path('login/', views.login_view, name='login'),
 
     # Dashboard
     path('dashboard/', views.dashboard, name='dashboard'),
@@ -19,6 +22,16 @@ urlpatterns = [
 
     # Logout
     path('logout/', views.logout_view, name='logout'),
+
+    # Override Django's auth login to use custom login view
+    path('auth/login/', views.login_view, name='auth_login'),
+    
+    # Password reset endpoints
+    path('auth/request-reset/', views.request_password_reset, name='request_password_reset'),
+    path('forgot-password/', views.forgot_password_view, name='forgot_password'),
+    
+    # Include other Django auth URLs (password reset, etc.)
+    path('auth/', include('django.contrib.auth.urls')),
 
     # API
     path('api/', include('api.urls')),

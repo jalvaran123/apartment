@@ -13,6 +13,17 @@ from .serializers import (
 
 
 @api_view(['GET'])
+def get_status(request):
+    """Simple status endpoint for health checks and connection testing."""
+    return Response({
+        "status": "ok",
+        "message": "Django backend is running",
+        "api_version": "1.0",
+        "backend_url": request.build_absolute_uri('/api/')
+    })
+
+
+@api_view(['GET'])
 def get_all_data(request):
     data = {
         "apartments": ApartmentSerializer(Apartment.objects.all(), many=True).data,

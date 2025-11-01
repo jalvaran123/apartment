@@ -9,6 +9,53 @@ import socket
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # -------------------------------
+# Auto-create .env file if it doesn't exist
+# -------------------------------
+ENV_FILE = BASE_DIR / '.env'
+if not ENV_FILE.exists():
+    # Create .env file with default Gmail configuration
+    env_content = """# Gmail SMTP Configuration
+EMAIL_HOST_USER=kinggucci195@gmail.com
+EMAIL_HOST_PASSWORD=zrleapbqomopgbbi
+DEFAULT_FROM_EMAIL=kinggucci195@gmail.com
+"""
+    try:
+        ENV_FILE.write_text(env_content, encoding='utf-8')
+        print(f"[OK] Created .env file at {ENV_FILE}")
+    except Exception as e:
+        print(f"[WARNING] Could not create .env file: {e}")
+
+# Load environment variables from .env file (if python-dotenv is installed)
+try:
+    from dotenv import load_dotenv
+    load_dotenv(dotenv_path=ENV_FILE)
+    # .env file loaded successfully
+except ImportError:
+    # python-dotenv not installed, using manual .env loading
+    # Manually load .env file if python-dotenv is not available
+    if ENV_FILE.exists():
+        try:
+            with open(ENV_FILE, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        key, value = line.split('=', 1)
+                        os.environ.setdefault(key.strip(), value.strip())
+            # Manually loaded .env file successfully
+        except Exception as e:
+            print(f"[WARNING] Could not manually load .env: {e}")
+except Exception as e:
+    print(f"[WARNING] Error loading .env file: {e}")
+
+# Fallback: Try loading from system environment if .env doesn't have values
+if not os.environ.get("EMAIL_HOST_USER"):
+    os.environ.setdefault("EMAIL_HOST_USER", "kinggucci195@gmail.com")
+if not os.environ.get("EMAIL_HOST_PASSWORD"):
+    os.environ.setdefault("EMAIL_HOST_PASSWORD", "zrleapbqomopgbbi")
+if not os.environ.get("DEFAULT_FROM_EMAIL"):
+    os.environ.setdefault("DEFAULT_FROM_EMAIL", "kinggucci195@gmail.com")
+
+# -------------------------------
 # Secret Key (Safe default)
 # -------------------------------
 SECRET_KEY = os.environ.get(
@@ -44,6 +91,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',  # CORS support for Next.js frontend
     'accounts',
     'rest_framework',
 ]
@@ -52,6 +100,7 @@ INSTALLED_APPS = [
 # Middleware
 # -------------------------------
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # CORS middleware (must be at the top)
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # ✅ Static PWA support
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -106,9 +155,9 @@ try:
             'PORT': '5432',
         }
     }
-    print("✅ Using Supabase PostgreSQL (online mode)")
+    print("[OK] Using Supabase PostgreSQL (online mode)")
 except socket.gaierror:
-    print("⚠️ Offline mode: using SQLite fallback")
+    print("[INFO] Offline mode: using SQLite fallback")
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -190,3 +239,38 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     )
 }
+
+# -------------------------------
+# CORS Settings for Next.js Frontend
+# -------------------------------
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "https://apartment-p51r.onrender.com",
+]
+
+# Allow credentials (cookies, authorization headers) if needed
+CORS_ALLOW_CREDENTIALS = True
+
+# -------------------------------
+# Email Configuration (Gmail SMTP)
+# -------------------------------
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True").lower() == "true"
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "kinggucci195@gmail.com")
+# Process app password - remove spaces and trim
+raw_password = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_HOST_PASSWORD = raw_password.replace(" ", "").strip() if raw_password else ""
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
+
+# Validate email configuration
+if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+    print("[WARNING] EMAIL_HOST_USER or EMAIL_HOST_PASSWORD not set. Email sending will fail.")
+else:
+    # Only log that email is configured, don't log the password
+    print(f"[OK] Email configured: {EMAIL_HOST_USER}")
+
+# Rate limiting for password reset requests (per IP)
+PASSWORD_RESET_RATE_LIMIT = 3  # Max requests per hour
+PASSWORD_RESET_RATE_WINDOW = 3600  # 1 hour in seconds
