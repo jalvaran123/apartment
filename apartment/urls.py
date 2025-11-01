@@ -50,6 +50,10 @@ urlpatterns = [
         template_name="serviceworker.js",
         content_type="application/javascript"
     ), name='serviceworker'),
+    path('service-worker.js', TemplateView.as_view(
+        template_name="serviceworker.js",
+        content_type="application/javascript"
+    ), name='service-worker'),
 ]
 
 # ✅ Static during development

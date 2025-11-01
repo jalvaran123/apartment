@@ -6,13 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}Apartment Management{% endblock %}</title>
 
-    <!-- ✅ PWA Requirements Added -->
-    <link rel="manifest" href="{% static 'manifest.json' %}">
-    <meta name="theme-color" content="#00b7eb">
-    <link rel="icon" href="{% static 'icon-192x192.png' %}">
-    <link rel="apple-touch-icon" href="{% static 'icon-192x192.png' %}">
+    <!-- ✅ PWA Requirements -->
+    <link rel="manifest" href="{% url 'manifest' %}">
+    <meta name="theme-color" content="#9D6DC2">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Apartment">
+    <link rel="apple-touch-icon" href="{% static 'icon-192x192.png' %}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'icon-192x192.png' %}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'icon-512x512.png' %}">
 
     <style>
         :root{
@@ -34,7 +36,8 @@
             min-height:100vh;
             background:linear-gradient(135deg,var(--main-grad-a) 0%,var(--main-grad-b) 100%);
             color:var(--muted-white);
-            overflow:hidden;
+            overflow-x:hidden;
+            overflow-y:auto;
         }
         .sidebar{
             width:var(--sidebar-width);
@@ -90,6 +93,8 @@
             flex:1;
             overflow:auto;
             padding: 22px 34px;
+            max-width: 100vw;
+            overflow-x: hidden;
         }
         .top-row{
             margin-bottom:18px;
@@ -117,12 +122,47 @@
             border-radius:6px;
             color: white;
         }
+        /* Fluid media and layout helpers */
+        img, video{ max-width:100%; height:auto; display:block; }
+        .notice-card{ width:100%; max-width:1100px; }
+        button, .btn, .nav-link { touch-action: manipulation; }
+        button, .btn { min-height:44px; min-width:44px; }
+        .top-row{ word-break:break-word; }
+        /* Prefer relative font sizes for small screens */
+        h1, h2, h3, h4{ line-height:1.2; }
+        
+        /* Tablet adjustments */
+        @media (max-width:1024px){
+            .main{ padding:16px 18px; }
+            .notice-title{ font-size:20px; }
+            .nav-link{ padding:12px 16px; }
+        }
         @media (max-width:880px){
             .sidebar{ position: fixed; left: 0; top: 0; bottom: 0; z-index: 999; transform: translateX(-100%); transition: transform .22s ease;}
             .sidebar.open{ transform: translateX(0); }
             .main{ padding:12px; margin-left: 0;}
             .menu-toggle{ display:inline-block; margin-bottom:10px; background:transparent; border: 0; color: white; padding:8px 10px; font-weight:600;}
         }
+        /* Mobile refinements */
+        @media (max-width:768px){
+            .nav-link{ font-size:13px; padding:10px 14px; }
+            .notice-card{ padding:16px; }
+            .top-row{ font-size:12px; }
+            /* Forms default to single column on narrow screens */
+            form{ display:grid; grid-template-columns: 1fr; gap: 14px; }
+            .form-actions{ flex-wrap: wrap; justify-content: flex-start; gap: 10px; }
+        }
+
+        /* Generic table responsiveness across pages */
+        .main table{
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-spacing: 0;
+        }
+        .main table thead, .main table tbody, .main table tr{ width: 100%; }
+        .main table th, .main table td{ white-space: nowrap; }
     </style>
 
     {% block head_extra %}{% endblock %}
@@ -157,6 +197,18 @@
 
     <main class="main">
         <button class="menu-toggle" id="menuToggle" style="display:none">☰ Menu</button>
+
+        <!-- Offline Indicator -->
+        <div id="offline-indicator" style="display:none; background: #FFA719; color: #2a2a2a; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; font-weight: 600; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+            ⚠️ You are offline
+        </div>
+
+        <!-- Install Prompt Banner -->
+        <div id="install-prompt" style="display:none; background: linear-gradient(135deg, #FFA719, #FFCD7B); color: #2a2a2a; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; font-weight: 600; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+            <span>📱 Install this app for a better experience!</span>
+            <button id="install-btn" style="margin-left: 10px; background: #6D3A8E; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;">Install</button>
+            <button id="dismiss-install" style="margin-left: 5px; background: transparent; border: none; color: #2a2a2a; cursor: pointer; font-size: 18px;">&times;</button>
+        </div>
 
         <div class="top-row">
             {% now "g:i A T M j, Y" as now_string %}
@@ -215,14 +267,127 @@
         })();
     </script>
 
-    <!-- ✅ Service Worker Registration (kept same filepath: /static/sw.js) -->
+    <!-- ✅ Service Worker Registration -->
+    <script src="{% static 'js/db.js' %}"></script>
     <script>
+    // Service Worker Registration
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register("{% static 'sw.js' %}")
-            .then(reg => console.log('Service Worker registered ✅', reg.scope))
-            .catch(err => console.error('SW registration failed ❌', err));
+            navigator.serviceWorker.register("{% static 'service-worker.js' %}")
+            .then((reg) => {
+                    console.log('[SW] Service Worker registered ✅', reg.scope);
+                    
+                    // Check for updates
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New service worker available
+                                console.log('[SW] New service worker available');
+                                if (confirm('New version available! Reload to update?')) {
+                                    window.location.reload();
+                                }
+                            }
+                        });
+                    });
+                })
+                .catch((err) => console.error('[SW] Registration failed ❌', err));
         });
+
+        // Handle service worker messages
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'SYNC_OFFLINE_DATA') {
+                if (window.ApartmentDB && window.ApartmentDB.syncWhenOnline) {
+                    window.ApartmentDB.syncWhenOnline();
+                }
+            }
+        });
+    }
+
+    // Offline Indicator
+    function updateOfflineIndicator() {
+        const indicator = document.getElementById('offline-indicator');
+        if (!indicator) return;
+
+        if (!navigator.onLine) {
+            indicator.style.display = 'block';
+            indicator.textContent = '⚠️ You are offline';
+        } else {
+            // Check for pending data
+            if (window.ApartmentDB && window.ApartmentDB.getAllPending) {
+                window.ApartmentDB.getAllPending().then((pending) => {
+                    const totalPending = Object.values(pending).reduce((sum, arr) => sum + arr.length, 0);
+                    if (totalPending > 0) {
+                        indicator.style.display = 'block';
+                        indicator.textContent = `⚠️ ${totalPending} item(s) pending sync`;
+                    } else {
+                        indicator.style.display = 'none';
+                    }
+                }).catch(() => {
+                    indicator.style.display = 'none';
+                });
+            } else {
+                indicator.style.display = 'none';
+            }
+        }
+    }
+
+    // Listen for online/offline events
+    window.addEventListener('online', () => {
+        updateOfflineIndicator();
+        if (window.ApartmentDB && window.ApartmentDB.syncWhenOnline) {
+            window.ApartmentDB.syncWhenOnline();
+        }
+    });
+
+    window.addEventListener('offline', () => {
+        updateOfflineIndicator();
+    });
+
+    // Update indicator on load
+    updateOfflineIndicator();
+    setInterval(updateOfflineIndicator, 5000); // Check every 5 seconds
+
+    // Install Prompt
+    let deferredPrompt;
+    const installPrompt = document.getElementById('install-prompt');
+    const installBtn = document.getElementById('install-btn');
+    const dismissBtn = document.getElementById('dismiss-install');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Show install prompt if not dismissed
+        if (!localStorage.getItem('install-prompt-dismissed')) {
+            installPrompt.style.display = 'block';
+        }
+    });
+
+    if (installBtn) {
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            console.log(`[PWA] User ${outcome === 'accepted' ? 'accepted' : 'dismissed'} install prompt`);
+            
+            installPrompt.style.display = 'none';
+            deferredPrompt = null;
+        });
+    }
+
+    if (dismissBtn) {
+        dismissBtn.addEventListener('click', () => {
+            installPrompt.style.display = 'none';
+            localStorage.setItem('install-prompt-dismissed', 'true');
+        });
+    }
+
+    // Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        installPrompt.style.display = 'none';
     }
     </script>
 

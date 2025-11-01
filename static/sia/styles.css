@@ -12,6 +12,9 @@ body {
     overflow-x: hidden;
 }
 
+/* Fluid media */
+img, video { max-width: 100%; height: auto; display: block; }
+
 :root {
     --deep-purple: #5A2D82;
     --soft-lavender: #9D6DC2;
@@ -116,6 +119,8 @@ body {
     align-items: center;
     justify-content: center;
 }
+/* Touch target */
+.nav-arrow, .dot, .login-btn, .forgot-password { touch-action: manipulation; min-width: 44px; min-height: 44px; }
 
 .nav-arrow:hover {
     background: rgba(255, 255, 255, 0.3);
@@ -188,6 +193,10 @@ body {
     border-radius: 20px;
     box-shadow: 0 20px 60px var(--shadow);
     border: 1px solid rgba(157, 109, 194, 0.1);
+}
+/* Avoid overflow on tiny screens */
+@media (max-width: 360px){
+    .login-form{ padding: 24px 18px; border-radius: 16px; }
 }
 
 .logo-section {
@@ -734,8 +743,10 @@ header h2 {
     margin: 15% auto;
     padding: 20px;
     border: 1px solid var(--deep-purple);
-    width: 80%;
+    width: 90vw;
     max-width: 500px;
+    max-height: 90vh;
+    overflow: auto;
     border-radius: 12px;
     box-shadow: 0 4px 20px var(--shadow);
 }
@@ -764,14 +775,8 @@ header h2 {
 }
 
 @media (max-width: 768px) {
-    .sidebar {
-        width: 200px;
-    }
-    
-    .main-content {
-        margin-left: 200px;
-        padding: 20px;
-    }
+    .sidebar { width: 200px; }
+    .main-content { margin-left: 200px; padding: 20px; }
     
     .logo-section h1 {
         font-size: 1.2rem;
@@ -793,4 +798,9 @@ header h2 {
         margin-left: 0;
         padding: 15px;
     }
+    .nav-arrow { width: 44px; height: 44px; font-size: 1.3rem; }
+    .dots-container { gap: 10px; }
+    .slide-overlay { top: 16px; right: 16px; left: 16px; text-align: center; }
+    .slide-overlay h2 { font-size: 1.4rem; }
+    .slide-overlay p { font-size: 0.95rem; }
 }

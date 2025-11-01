@@ -41,6 +41,12 @@ header {
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
+/* Fluid media */
+img, video { max-width: 100%; height: auto; display: block; }
+
+/* Improve text wrapping */
+body, .page-container, .card, .styled-table { word-wrap: break-word; overflow-wrap: anywhere; }
+
 header h1 {
     font-size: 28px;
     font-weight: 700;
@@ -93,6 +99,9 @@ nav a:hover::after {
     max-width: 1400px;
     margin: 0 auto;
 }
+
+/* Touch target sizing */
+button, .btn { min-width: 44px; min-height: 44px; touch-action: manipulation; }
 
 .page-title {
     font-size: 36px;
@@ -340,4 +349,25 @@ nav a:hover::after {
 .page-selector button:hover:not(.active) {
     background: rgba(255, 255, 255, 0.15);
     color: white;
+}
+
+/* Tablet breakpoint */
+@media (max-width: 1024px) {
+    header { padding: 16px 24px; }
+    nav { gap: 18px; }
+    .page-container { padding: 24px; }
+    .card { padding: 28px 22px; }
+    .card h3 { font-size: 36px; }
+}
+
+/* Mobile breakpoint */
+@media (max-width: 768px) {
+    header { padding: 14px 16px; }
+    nav { gap: 14px; flex-wrap: wrap; }
+    .page-container { padding: 16px; }
+    .card { padding: 22px 18px; border-radius: 16px; }
+    .card h3 { font-size: 28px; }
+    .styled-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .btn { padding: 12px 20px; font-size: 13px; }
+    .btn-small { padding: 8px 14px; font-size: 12px; }
 }

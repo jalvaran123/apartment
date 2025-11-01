@@ -1,23 +1,42 @@
 {
-  "name": "Apartment Management System",
+  "name": "Apartment",
   "short_name": "Apartment",
   "description": "Manage apartments, tenants, payments, and bills even while offline.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#3b82f6",
-  "theme_color": "#3b82f6",
-  "orientation": "portrait-primary",
+  "background_color": "#5A2D82",
+  "theme_color": "#9D6DC2",
+  "orientation": "any",
   "icons": [
     {
-      "src": "icon-192x192.png",
+      "src": "/static/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "icon-512x512.png",
+      "src": "/static/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Tenants",
+      "short_name": "Tenants",
+      "description": "Manage tenants",
+      "url": "/accounts/tenants/",
+      "icons": [{ "src": "/static/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Payments",
+      "short_name": "Payments",
+      "description": "View payments",
+      "url": "/accounts/payments/",
+      "icons": [{ "src": "/static/icon-192x192.png", "sizes": "192x192" }]
     }
   ]
 }

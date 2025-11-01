@@ -84,7 +84,30 @@ def dashboard(request):
 
 @login_required
 def home(request):
-    return render(request, "accounts/home.html")
+    # Use same context as dashboard
+    tenants = Tenant.objects.select_related("unit__apartment").all()
+    units = Unit.objects.select_related("apartment").all()
+    payments = Payment.objects.select_related("unit").order_by("-id")[:5]
+    bills = Bill.objects.select_related("unit").order_by("-month")[:5]
+    charges = OtherCharges.objects.select_related("bill").order_by("-id")[:5]
+
+    stats = {
+        "tenant_count": tenants.count(),
+        "unit_count": units.count(),
+        "payment_count": Payment.objects.count(),
+        "bill_count": Bill.objects.count(),
+        "charge_count": OtherCharges.objects.count(),
+    }
+
+    context = {
+        "tenants": tenants,
+        "units": units,
+        "payments": payments,
+        "bills": bills,
+        "charges": charges,
+        "stats": stats,
+    }
+    return render(request, "accounts/home.html", context)
 
 
 # ---------------------- TENANTS / UNITS / RENT PAGES ----------------------
