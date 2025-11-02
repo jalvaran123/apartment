@@ -131,6 +131,14 @@ class Bill(models.Model):
     def calculate_electric_bill(self):
         return Decimal(self.current_meter - self.previous_meter) * Decimal(11)
 
+    @property
+    def consumption(self):
+        """Total meter consumption for the period (current - previous)."""
+        try:
+            return float(self.current_meter or 0) - float(self.previous_meter or 0)
+        except Exception:
+            return 0.0
+
     def save(self, *args, **kwargs):
         self.electric_bill = self.calculate_electric_bill()
         base_total = (

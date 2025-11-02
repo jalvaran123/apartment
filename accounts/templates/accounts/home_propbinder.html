@@ -1,0 +1,213 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% block content %}
+<style>
+  html, body { overflow-y: auto; height: 100%; }
+  :root{
+    --bg-from:#E0DCFF;
+    --bg-to:#A89FFF;
+    --text-dark:#2D2742;
+    --brand:#6C5CE7;
+    --bubble-dark:#1A1529;
+    --bubble-shadow: 0 12px 30px rgba(0,0,0,.18);
+    --ring: rgba(0,0,0,.06);
+  }
+  .hero{position:relative; isolation:isolate; overflow:hidden; background: linear-gradient(to bottom, var(--bg-from), var(--bg-to)); border-radius:12px}
+  .hero-inner{position:relative; z-index:1; max-width:1120px; margin:0 auto; padding:64px 16px 64px; display:flex; min-height: clamp(680px, 85vh, 990px); align-items:center; justify-content:center; text-align:center}
+  .bg-illustration-wrap{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:0; pointer-events:none}
+  /* Fill hero background area more fully while preserving aspect via cover */
+  .bg-illustration{width:100%; height:100%; max-width:none; max-height:100%; object-fit:cover; aspect-ratio: 750 / 317; transform:scale(1.02)}
+  .badge{display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border-radius:999px; background:rgba(255,255,255,.62); box-shadow:0 1px 2px rgba(0,0,0,.04); border:1px solid var(--ring); backdrop-filter: blur(6px); margin-bottom:18px}
+  .badge span{font-size:14px; font-weight:600}
+  .badge img{height:16px; width:auto}
+  .headline{font-weight:800; letter-spacing:-.02em; line-height:1.1; font-size: clamp(28px, 4.5vw, 56px); color: var(--text-dark)}
+  .cta{margin-top:24px}
+  .btn-primary{display:inline-block; padding:14px 28px; border-radius:10px; background:var(--brand); color:#fff; font-weight:600; text-decoration:none; box-shadow:0 4px 20px rgba(108,92,231,.25); transition: transform .15s ease, box-shadow .2s ease}
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 10px 26px rgba(108,92,231,.33)}
+  .bubble{position:absolute; will-change: transform, opacity; filter: drop-shadow(0 8px 18px rgba(0,0,0,.18));}
+  .bubble-card{background:var(--bubble-dark); color:#fff; border-radius:14px; padding:16px; box-shadow: var(--bubble-shadow);}
+  .bubble-note{background:#fff; color:#222; border-radius:10px; padding:10px 12px; box-shadow: var(--bubble-shadow); display:inline-flex; align-items:center; gap:8px;}
+  .bubble-note .icon{ width:18px; height:18px; display:inline-block; flex:0 0 18px; }
+  /* (Drift keyframes retained but not used for new bubbles; using popCycle for consistency) */
+  @keyframes popCycle{0%{opacity:0; transform:translateY(8px) scale(.96)} 12%{opacity:1; transform:translateY(0) scale(1)} 38%{opacity:1; transform:translateY(0) scale(1)} 50%{opacity:0; transform:translateY(6px) scale(.98)} 100%{opacity:0; transform:translateY(6px) scale(.98)}}
+  .pop{animation: popCycle 8s infinite both; animation-timing-function: cubic-bezier(.22,.8,.2,1); animation-delay: var(--delay, 0s)}
+  .pop.alt{animation-duration: 7.4s}
+  .pop.slow{animation-duration: 9.2s}
+  .b1{left:min(22%, 320px); bottom:8%; --delay:.15s}
+  .b2{right:min(25%, 360px); bottom:28%; --delay:.35s}
+  .b3{right:min(24%, 350px); bottom:20%; --delay:.55s}
+  .b1 .meta{font-size:11px; color:#bdb8d6}
+  .b1 .value{font-size:26px; font-weight:800}
+  .b1 .delta{font-size:11px; color:#4ADE80; margin-top:4px}
+  .gauge{margin-top:10px; height:80px;}
+  .gauge svg{width:100%; height:100%}
+  /* New top-area bubbles using pop behavior */
+  .b4{left:min(10%, 160px); top:10%; --delay:.2s}
+  .b5{left:50%; transform: translateX(-50%); top:8%; --delay:.45s}
+  .b6{right:min(10%, 160px); top:12%; --delay:.7s}
+  .b4 .bubble-note, .b5 .bubble-note, .b6 .bubble-note{ font-size:12px }
+
+  @media (max-width:1024px){ .hero-inner{min-height: 70vh} .b1{left:15%} .b2{right:15%} .b3{right:14%} .b4{left:12%; top:10%} .b5{top:9%} .b6{right:12%; top:12%} }
+  @media (max-width:768px){ .hero-inner{min-height: 60vh; padding:56px 14px} .b1{left:8%; bottom:10%} .b2{right:10%; bottom:32%} .b3{right:8%; bottom:24%} .b4{left:10%; top:12%} .b5{top:11%} .b6{right:10%; top:14%} }
+  @media (prefers-reduced-motion: reduce){ .pop{animation:none} .drift, .drift-alt{animation:none} }
+</style>
+
+<section class="hero" aria-label="Dashboard hero">
+  <div class="bg-illustration-wrap" aria-hidden="true">
+    <img class="bg-illustration" src="https://cdn.prod.website-files.com/654a4eca1f8c2ba5f4a71133/6693cdf253ab0ff3941e57ef_Slide%2016_9%20-%20(compressed).svg" alt="Isometric city illustration" />
+  </div>
+  <div class="hero-inner">
+    
+  </div>
+
+  <div class="bubble b1 pop">
+    <div class="bubble-note">
+      <svg class="icon" viewBox="0 0 24 24" fill="#22c55e" aria-hidden="true"><circle cx="8" cy="9" r="3"></circle><circle cx="16" cy="11" r="3"></circle><rect x="5" y="13" width="8" height="2" rx="1" fill="#22c55e"></rect><rect x="13" y="15" width="8" height="2" rx="1" fill="#22c55e"></rect></svg>
+      Easily manage your tenants.
+    </div>
+  </div>
+
+  <div class="bubble b2 pop alt">
+    <div class="bubble-note">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="6" width="18" height="12" rx="2" fill="#22c55e"></rect>
+        <rect x="3" y="10" width="18" height="2" fill="#16a34a"></rect>
+      </svg>
+      Track payments on time.
+    </div>
+  </div>
+
+  <div class="bubble b3 pop slow">
+    <div class="bubble-note">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 14l6 6 2-2-2-2 2-2-2-2-2 2-2-2z" fill="#22c55e"></path>
+      </svg>
+      Keep maintenance simple.
+    </div>
+  </div>
+
+  <!-- Additional top-area floating bubbles -->
+  <div class="bubble b4 pop" style="z-index:1;">
+    <div class="bubble-note" style="padding:8px 10px;">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2l7 3v5c0 5-3.5 9-7 12-3.5-3-7-7-7-12V5l7-3z" fill="#22c55e"></path>
+        <path d="M8 10l2 2 4-4" stroke="#eafff0" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      Your data stays secure.
+    </div>
+  </div>
+
+  <div class="bubble b5 pop alt" style="z-index:1;">
+    <div class="bubble-note" style="padding:8px 10px;">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 3a6 6 0 0 0-6 6v3l-2 3h16l-2-3V9a6 6 0 0 0-6-6z" fill="#22c55e"></path>
+        <circle cx="12" cy="20" r="2" fill="#16a34a"></circle>
+      </svg>
+      Stay organized every day.
+    </div>
+  </div>
+
+  <div class="bubble b6 pop slow" style="z-index:1;">
+    <div class="bubble-note" style="padding:8px 10px;">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="4" y="12" width="3" height="8" rx="1" fill="#22c55e"></rect>
+        <rect x="10" y="9" width="3" height="11" rx="1" fill="#22c55e"></rect>
+        <rect x="16" y="6" width="3" height="14" rx="1" fill="#22c55e"></rect>
+      </svg>
+      Access reports anytime.
+    </div>
+  </div>
+
+</section>
+
+<!-- Redesigned dashboard section -->
+<style>
+  .dash-section{padding:28px 24px 40px; max-width:1120px; margin:0 auto}
+  .dash-title{font-size:20px; font-weight:700; color:#2D2742; margin:0 0 18px 0}
+  .cards{display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:18px}
+  .card{position:relative; background:linear-gradient(180deg, #ffffff, #f8f7ff); border:1px solid rgba(0,0,0,.06); border-radius:14px; padding:18px; box-shadow:0 8px 24px rgba(0,0,0,.06); transition: transform .2s ease, box-shadow .2s ease}
+  .card:hover{transform:translateY(-4px); box-shadow:0 16px 36px rgba(108,92,231,.18)}
+  .card .label{font-size:12px; text-transform:uppercase; letter-spacing:.4px; color:#7c7e91}
+  .card .value{font-size:28px; font-weight:800; color:#2D2742; margin-top:6px}
+  .progress{margin-top:14px; height:10px; background:linear-gradient(90deg, #eee, #f4f2ff); border-radius:999px; overflow:hidden}
+  .progress > span{display:block; height:100%; background:linear-gradient(90deg, #6C5CE7, #8B78FF); border-radius:999px; width: var(--pct, 0%); transition: width .6s ease}
+  .subtext{margin-top:8px; font-size:12px; color:#6b7280}
+
+  .alerts{margin-top:28px}
+  .alert-grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:16px}
+  .alert{background:linear-gradient(180deg, #ffffff, #fbfbff); border:1px solid rgba(0,0,0,.06); border-left:4px solid; border-radius:12px; padding:16px; box-shadow:0 6px 18px rgba(0,0,0,.06); transition:transform .2s ease}
+  .alert:hover{transform:translateY(-3px)}
+  .alert.overdue{border-color:#ff6b6b}
+  .alert.pending{border-color:#FFC107}
+  .alert.upcoming{border-color:#4CAF50}
+  .alert h4{margin:0 0 6px 0; font-size:13px; color:#6b7280; text-transform:uppercase; letter-spacing:.4px}
+  .alert .amount{font-size:22px; font-weight:700; color:#2D2742}
+  .alert .desc{font-size:12px; color:#667085}
+
+  .spark{margin-top:10px; height:40px}
+  .spark svg{width:100%; height:100%}
+
+  @media (max-width:768px){ .dash-section{padding:20px 16px 28px} }
+</style>
+
+<div class="dash-section">
+  {% widthratio stats.tenant_count stats.unit_count 100 as occ_pct %}
+  {% if stats.bill_count %}{% widthratio stats.payment_count stats.bill_count 100 as pay_pct %}{% else %}{% with 0 as pay_pct %}{% endwith %}{% endif %}
+
+  <h3 class="dash-title">Overview</h3>
+  <div class="cards">
+    <div class="card">
+      <div class="label">Total Units</div>
+      <div class="value">{{ stats.unit_count|default:0 }}</div>
+      <div class="subtext">All apartment units in the system</div>
+    </div>
+    <div class="card">
+      <div class="label">Total Tenants</div>
+      <div class="value">{{ stats.tenant_count|default:0 }}</div>
+      <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ occ_pct|default:0 }}">
+        <span style="--pct: {{ occ_pct|default:0 }}%"></span>
+      </div>
+      <div class="subtext">Estimated occupancy: {{ occ_pct|default:0 }}%</div>
+    </div>
+    <div class="card">
+      <div class="label">Payments</div>
+      <div class="value">{{ stats.payment_count|default:0 }}</div>
+      <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ pay_pct|default:0 }}">
+        <span style="--pct: {{ pay_pct|default:0 }}%"></span>
+      </div>
+      <div class="subtext">Payments recorded this cycle</div>
+      <div class="spark">
+        <svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">
+          <polyline points="0,30 15,25 30,28 45,22 60,18 75,20 90,12 100,15" fill="none" stroke="#6C5CE7" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="card">
+      <div class="label">Bills</div>
+      <div class="value">{{ stats.bill_count|default:0 }}</div>
+      <div class="subtext">Active bills in the system</div>
+    </div>
+  </div>
+
+  <div class="alerts">
+    <h3 class="dash-title">Alerts</h3>
+    <div class="alert-grid">
+      <div class="alert overdue">
+        <h4>Tenants</h4>
+        <div class="amount">{{ stats.tenant_count|default:0 }}</div>
+        <div class="desc">Active tenants in system</div>
+      </div>
+      <div class="alert pending">
+        <h4>Units</h4>
+        <div class="amount">{{ stats.unit_count|default:0 }}</div>
+        <div class="desc">Available apartment units</div>
+      </div>
+      <div class="alert upcoming">
+        <h4>Payments</h4>
+        <div class="amount">{{ stats.payment_count|default:0 }}</div>
+        <div class="desc">Payment records logged</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

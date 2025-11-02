@@ -35,7 +35,7 @@ def index(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return redirect('/auth/login/')
 
 
 def login_view(request):
@@ -79,7 +79,7 @@ def dashboard(request):
         "charges": charges,
         "stats": stats,
     }
-    return render(request, "accounts/home.html", context)
+    return render(request, "accounts/home_propbinder.html", context)
 
 
 @login_required
@@ -107,7 +107,7 @@ def home(request):
         "charges": charges,
         "stats": stats,
     }
-    return render(request, "accounts/home.html", context)
+    return render(request, "accounts/home_propbinder.html", context)
 
 
 # ---------------------- TENANTS / UNITS / RENT PAGES ----------------------

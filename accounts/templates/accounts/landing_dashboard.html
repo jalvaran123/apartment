@@ -1,0 +1,159 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Monterde Apartment | Dashboard</title>
+  <link rel="manifest" href="{% url 'manifest' %}">
+  <meta name="theme-color" content="#6C5CE7">
+  <style>
+    :root{
+      --bg-from:#E0DCFF; /* light lavender */
+      --bg-to:#A89FFF;   /* lavender */
+      --text-dark:#2D2742;
+      --brand:#6C5CE7;
+      --bubble-dark:#1A1529;
+      --bubble-shadow: 0 12px 30px rgba(0,0,0,.18);
+      --ring: rgba(0,0,0,.06);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: var(--text-dark); background:#fff}
+
+    /* Header - logo only (no nav items) */
+    .site-header{position:fixed;left:0;top:0;right:0; z-index:50; backdrop-filter:saturate(1.2) blur(6px);}
+    .header-inner{max-width:1280px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; padding:20px 24px;}
+    .brand{display:inline-flex; align-items:center; gap:10px; text-decoration:none; color:inherit}
+    .brand img{height:24px; width:auto; display:block}
+
+    /* Hero container */
+    .hero{position:relative; isolation:isolate; overflow:hidden; background: linear-gradient(to bottom, var(--bg-from), var(--bg-to));}
+    .hero-inner{position:relative; z-index:1; max-width:1120px; margin:0 auto; padding:120px 16px 64px; display:flex; min-height:700px; align-items:center; justify-content:center; text-align:center}
+
+    /* Background SVG container with fixed aspect ratio 750:317 and responsive max size 1872x791 */
+    .bg-illustration-wrap{position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:center; z-index:0; pointer-events:none}
+    .bg-illustration{width:100%; max-width:1872px; aspect-ratio: 750 / 317; /* 3000x1268 => 750:317 */ object-fit:contain; height:auto; transform:scale(1.05);} /* slightly enlarged */
+
+    /* Badge */
+    .badge{display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border-radius:999px; background:rgba(255,255,255,.62); box-shadow:0 1px 2px rgba(0,0,0,.04); border:1px solid var(--ring); backdrop-filter: blur(6px); margin-bottom:18px}
+    .badge span{font-size:14px; font-weight:600}
+    .badge img{height:16px; width:auto}
+
+    .headline{font-weight:800; letter-spacing:-.02em; line-height:1.1; font-size: clamp(32px, 6vw, 64px)}
+
+    /* CTA */
+    .cta{margin-top:24px}
+    .btn-primary{display:inline-block; padding:14px 28px; border-radius:10px; background:var(--brand); color:#fff; font-weight:600; text-decoration:none; box-shadow:0 4px 20px rgba(108,92,231,.25); transition: transform .15s ease, box-shadow .2s ease}
+    .btn-primary:hover{transform:translateY(-2px); box-shadow:0 10px 26px rgba(108,92,231,.33)}
+
+    /* Chat-bubble style pop-in/out animations (no floating) */
+    .bubble{position:absolute; will-change: transform, opacity; filter: drop-shadow(0 8px 18px rgba(0,0,0,.18));}
+    .bubble-card{background:var(--bubble-dark); color:#fff; border-radius:14px; padding:16px; box-shadow: var(--bubble-shadow);}
+    .bubble-note{background:#fff; color:#222; border-radius:10px; padding:10px 12px; box-shadow: var(--bubble-shadow);}
+
+    /* Pop cycle: 0-10% fade+scale in, 10-35% visible, 35-45% fade out, 45-100% hidden */
+    @keyframes popCycle{0%{opacity:0; transform:translateY(8px) scale(.96)} 10%{opacity:1; transform:translateY(0) scale(1)} 35%{opacity:1; transform:translateY(0) scale(1)} 45%{opacity:0; transform:translateY(6px) scale(.98)} 100%{opacity:0; transform:translateY(6px) scale(.98)}}
+    .pop{animation: popCycle 8s ease-in-out infinite both}
+    .pop.alt{animation-duration: 7s}
+    .pop.slow{animation-duration: 9s}
+
+    /* Positions similar to original but responsive */
+    .b1{left:min(22%, 320px); bottom:8%}
+    .b2{right:min(25%, 360px); bottom:28%}
+    .b3{right:min(24%, 350px); bottom:20%}
+
+    /* Bubble card content */
+    .b1 .meta{font-size:11px; color:#bdb8d6}
+    .b1 .value{font-size:28px; font-weight:800}
+    .b1 .delta{font-size:11px; color:#4ADE80; margin-top:4px}
+    .gauge{margin-top:10px; height:80px;}
+    .gauge svg{width:100%; height:100%}
+
+    /* Responsive adjustments */
+    @media (max-width:1024px){
+      .hero-inner{min-height:680px; padding-top:110px}
+      .b1{left:15%}
+      .b2{right:15%}
+      .b3{right:14%}
+    }
+    @media (max-width:768px){
+      .hero-inner{min-height:560px; padding:96px 14px 56px}
+      .b1{left:8%; bottom:10%}
+      .b2{right:10%; bottom:32%}
+      .b3{right:8%; bottom:24%}
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .pop{animation: none}
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with only logo -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/">
+        <img src="{% static 'icon-192x192.png' %}" alt="Monterde" />
+        <strong>Monterde Apartment</strong>
+      </a>
+      <!-- No navigation items per requirement -->
+    </div>
+  </header>
+
+  <!-- Hero Top Section -->
+  <section class="hero" aria-label="Dashboard hero">
+    <div class="bg-illustration-wrap" aria-hidden="true">
+      <img class="bg-illustration" src="https://cdn.prod.website-files.com/654a4eca1f8c2ba5f4a71133/6693cdf253ab0ff3941e57ef_Slide%2016_9%20-%20(compressed).svg" alt="Isometric city illustration" />
+    </div>
+
+    <div class="hero-inner">
+      <div>
+        <div class="badge">
+          <span>We integrate with</span>
+          <img src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/63fa6604-1ae8-4e23-a4d8-aa3fbfc555c7-propbinder-com/assets/svgs/67163c4b51ebd4eca8214356_Boligflow-3.svg" alt="Boligflow" />
+        </div>
+        <h1 class="headline">Spend time with your tenants, not on administration – powered by AI.</h1>
+        <div class="cta">
+          <a class="btn-primary" href="{% url 'home' %}">Enter Dashboard</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat bubble style pop-in/out blocks -->
+    <div class="bubble b1 pop">
+      <div class="bubble-card" style="width:240px;">
+        <div class="meta">Tenant satisfaction</div>
+        <div class="value">87 percent</div>
+        <div class="delta">▲ 19% more compared to last month</div>
+        <div class="gauge">
+          <svg viewBox="0 0 100 50" aria-hidden="true">
+            <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#374151" stroke-width="8" stroke-linecap="round" />
+            <path d="M 10 50 A 40 40 0 0 1 83.3 11.5" fill="none" stroke="#4ADE80" stroke-width="8" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="meta" style="text-align:center; color:#9aa0a6">based on 543 reviews</div>
+      </div>
+    </div>
+
+    <div class="bubble b2 pop alt">
+      <div class="bubble-note">Where can I find recycling bins?</div>
+    </div>
+
+    <div class="bubble b3 pop slow">
+      <div class="bubble-note">At the end of the courtyard</div>
+    </div>
+  </section>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function(){
+        navigator.serviceWorker.register("{% static 'service-worker.js' %}")
+          .then(function(reg){ console.log('[SW] registered from landing', reg.scope); })
+          .catch(function(err){ console.log('[SW] registration failed', err); });
+      });
+    }
+  </script>
+</body>
+</html>

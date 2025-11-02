@@ -18,7 +18,8 @@
 
     <style>
         :root{
-            --sidebar-width: 220px;
+            --sidebar-collapsed: 80px;
+            --sidebar-expanded: 240px;
             --sidebar-bg1: #2d1b47;
             --sidebar-bg2: #1a0f2e;
             --accent: #ffd700;
@@ -40,7 +41,7 @@
             overflow-y:auto;
         }
         .sidebar{
-            width:var(--sidebar-width);
+            width: var(--sidebar-expanded); /* Reserve full width to prevent layout shifts */
             background: linear-gradient(180deg,var(--sidebar-bg1) 0%, var(--sidebar-bg2) 100%);
             color:white;
             display:flex;
@@ -48,17 +49,26 @@
             border-right: 1px solid rgba(0,0,0,0.25);
             min-height:100vh;
             padding: 0;
+            will-change: transform;
         }
-        .sidebar-header{
-            padding:22px 18px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+        .sidebar-inner{
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            /* Hide the extra area when collapsed using clip-path (GPU-friendly) */
+            clip-path: inset(0 calc(var(--sidebar-expanded) - var(--sidebar-collapsed)) 0 0);
+            -webkit-clip-path: inset(0 calc(var(--sidebar-expanded) - var(--sidebar-collapsed)) 0 0);
+            transition: clip-path .28s cubic-bezier(.22,.8,.2,1);
+            will-change: clip-path;
         }
-        .sidebar-header h1{
-            font-size:16px;
-            font-weight:700;
-            color:var(--accent);
-            letter-spacing:0.6px;
+        .sidebar:hover .sidebar-inner{
+            clip-path: inset(0 0 0 0);
         }
+        .sidebar:hover{
+            box-shadow: 0 18px 48px rgba(0,0,0,.28);
+        }
+        .sidebar-header{ padding:22px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; }
+        .sidebar-header h1{ font-size:16px; font-weight:700; color:var(--accent); letter-spacing:0.6px; text-align:center; }
         nav.nav-menu{
             flex:1;
             padding:14px 0;
@@ -66,18 +76,33 @@
             flex-direction:column;
         }
         .nav-link{
-            display:block;
-            padding:12px 18px;
+            display:flex; align-items:center;
+            padding:12px 14px;
             color: rgba(255,255,255,0.85);
             text-decoration:none;
             font-size:14px;
             border-left:4px solid transparent;
-            transition: all .15s ease;
+            transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+        }
+        .nav-link::before{
+            content: attr(data-icon);
+            width: 36px; min-width:36px; height: 36px;
+            display:inline-flex; align-items:center; justify-content:center;
+            margin-right: 8px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+            transition: transform .22s cubic-bezier(.22,.8,.2,1), background .22s ease;
         }
         .nav-link:hover{
             background: rgba(255,255,255,0.03);
             color: white;
             border-left-color: var(--accent);
+            transform: translateX(1px);
+        }
+        .nav-link:hover::before{
+            transform: scale(1.06);
+            background: rgba(255,255,255,0.10);
         }
         .nav-link.active{
             background: rgba(255,255,255,0.06);
@@ -85,6 +110,9 @@
             color:white;
             border-left-color: var(--accent);
         }
+        .nav-text{ transition: opacity .22s ease, transform .22s ease; white-space: nowrap; }
+        .sidebar:not(:hover) .nav-text{ opacity:0; transform: translateX(-6px); pointer-events: none; }
+        .sidebar:hover .nav-text{ opacity:1; transform: translateX(0); }
         .nav-footer{
             padding: 12px 18px;
             margin-top: auto;
@@ -95,7 +123,10 @@
             padding: 22px 34px;
             max-width: 100vw;
             overflow-x: hidden;
+            transition: transform .28s cubic-bezier(.22,.8,.2,1);
         }
+        /* Slight, smooth nudge to the right when user hovers the sidebar */
+        .sidebar:hover + .main{ transform: translateX(8px); }
         .top-row{
             margin-bottom:18px;
             color: rgba(255,255,255,0.72);
@@ -169,30 +200,36 @@
 </head>
 <body>
     <aside class="sidebar" id="appSidebar">
+        <!-- Header kept OUTSIDE the clipped inner wrapper to avoid being cut -->
         <div class="sidebar-header">
             <h1>APARTMENT MANAGEMENT</h1>
         </div>
 
-        {% with url_name=request.resolver_match.url_name %}
-        <nav class="nav-menu" aria-label="Main navigation">
-            <a class="nav-link {% if url_name == 'apartment_list' or url_name == 'apartment_create' or url_name == 'apartment_update' %}active{% endif %}"
-               href="{% url 'apartment_list' %}">Apartments</a>
-            <a class="nav-link {% if url_name == 'unit_list' or url_name == 'unit_create' or url_name == 'unit_update' %}active{% endif %}"
-               href="{% url 'unit_list' %}">Units</a>
-            <a class="nav-link {% if url_name == 'tenants' or url_name == 'tenant_create' or url_name == 'tenant_update' %}active{% endif %}"
-               href="{% url 'tenants' %}">Tenants</a>
-            <a class="nav-link {% if url_name == 'payment_list' or url_name == 'payment_create' or url_name == 'payment_update' %}active{% endif %}"
-               href="{% url 'payment_list' %}">Payments</a>
-            <a class="nav-link {% if url_name == 'bill_list' or url_name == 'bill_create' %}active{% endif %}"
-               href="{% url 'bill_list' %}">Bills</a>
-            <a class="nav-link {% if url_name == 'other_charges_list' or url_name == 'other_charges_create' %}active{% endif %}"
-               href="{% url 'other_charges_list' %}">Other Charges</a>
+        <div class="sidebar-inner">
+            {% with url_name=request.resolver_match.url_name %}
+            <nav class="nav-menu" aria-label="Main navigation">
+            <a data-icon="🏢" class="nav-link {% if url_name == 'apartment_list' or url_name == 'apartment_create' or url_name == 'apartment_update' %}active{% endif %}"
+               href="{% url 'apartment_list' %}"><span class="nav-text">Apartments</span></a>
+            <a data-icon="📦" class="nav-link {% if url_name == 'unit_list' or url_name == 'unit_create' or url_name == 'unit_update' %}active{% endif %}"
+               href="{% url 'unit_list' %}"><span class="nav-text">Units</span></a>
+            <a data-icon="👥" class="nav-link {% if url_name == 'tenants' or url_name == 'tenant_create' or url_name == 'tenant_update' %}active{% endif %}"
+               href="{% url 'tenants' %}"><span class="nav-text">Tenants</span></a>
+            <a data-icon="💳" class="nav-link {% if url_name == 'payment_list' or url_name == 'payment_create' or url_name == 'payment_update' %}active{% endif %}"
+               href="{% url 'payment_list' %}"><span class="nav-text">Payments</span></a>
+            <a data-icon="📊" class="nav-link {% if url_name == 'bill_list' or url_name == 'bill_create' %}active{% endif %}"
+               href="{% url 'bill_list' %}"><span class="nav-text">Bills</span></a>
+            <a data-icon="💸" class="nav-link {% if url_name == 'other_charges_list' or url_name == 'other_charges_create' %}active{% endif %}"
+               href="{% url 'other_charges_list' %}"><span class="nav-text">Other Charges</span></a>
 
-            <div class="nav-footer">
-                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-            </div>
-        </nav>
-        {% endwith %}
+                <div class="nav-footer">
+                    <form method="POST" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="nav-link" style="background:none;border:none;padding:0;cursor:pointer;">Logout</button>
+                    </form>
+                </div>
+            </nav>
+            {% endwith %}
+        </div>
     </aside>
 
     <main class="main">
@@ -222,6 +259,35 @@
         </div>
         {% endblock %}
     </main>
+
+    <!-- Global Notification Bell (fixed, available on all routes) -->
+    <button id="globalNotifBell" aria-label="Notifications" style="position:fixed; top:16px; right:20px; z-index:1000; background:rgba(255,255,255,.85); border:1px solid rgba(0,0,0,.08); width:40px; height:40px; border-radius:999px; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px rgba(0,0,0,.12); cursor:pointer;">
+        <span style="font-size:18px;">🔔</span>
+    </button>
+    <div id="globalNotifPanel" style="position:fixed; top:64px; right:20px; width:min(360px, 92vw); max-height:60vh; overflow:auto; background:#ffffff; color:#222; border:1px solid rgba(0,0,0,.08); border-radius:12px; box-shadow:0 18px 40px rgba(0,0,0,.18); z-index:1000; display:none;">
+        <div style="padding:12px 14px; border-bottom:1px solid rgba(0,0,0,.06); font-weight:700; color:#2D2742;">Recent activity</div>
+        <ul style="list-style:none; margin:0; padding:8px 0;">
+            {% if payments %}
+                {% for p in payments %}
+                <li style="padding:10px 14px; border-bottom:1px solid rgba(0,0,0,.04);">
+                    <div style="font-weight:600; color:#2D2742;">Payment received</div>
+                    <div style="font-size:13px; color:#6b7280;">Unit {{ p.unit|default:"N/A" }} · ₱{{ p.amount|floatformat:2 }} · {{ p.date_of_payment|date:"M d, Y" }}</div>
+                </li>
+                {% endfor %}
+            {% endif %}
+            {% if bills %}
+                {% for b in bills %}
+                <li style="padding:10px 14px; border-bottom:1px solid rgba(0,0,0,.04);">
+                    <div style="font-weight:600; color:#2D2742;">Bill update</div>
+                    <div style="font-size:13px; color:#6b7280;">Unit {{ b.unit|default:"N/A" }} · Month {{ b.month|date:"M Y" }}</div>
+                </li>
+                {% endfor %}
+            {% endif %}
+            {% if not payments and not bills %}
+                <li style="padding:14px; color:#6b7280;">No recent activity</li>
+            {% endif %}
+        </ul>
+    </div>
 
     <script>
         (function(){
@@ -264,6 +330,18 @@
             if(toggle){
                 toggle.addEventListener('click', function(){ sidebar.classList.toggle('open'); });
             }
+        })();
+
+        // Global Notification Bell toggle
+        (function(){
+            var bell = document.getElementById('globalNotifBell');
+            var panel = document.getElementById('globalNotifPanel');
+            if(!bell || !panel) return;
+            function close(){ panel.style.display='none'; }
+            function toggle(e){ e && e.stopPropagation(); panel.style.display = (panel.style.display==='block') ? 'none' : 'block'; }
+            bell.addEventListener('click', toggle);
+            document.addEventListener('click', function(){ if(panel.style.display==='block') close(); });
+            document.addEventListener('keydown', function(e){ if(e.key==='Escape') close(); });
         })();
     </script>
 
